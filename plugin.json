@@ -1,0 +1,14 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "blackadder",
+  "version": "0.1.0",
+  "description": "Blackadder DLC: idea → plan → architecture + design system → walking skeleton → verified tracer-bullet slices → release. Portable skills plus per-harness agents and hooks for Claude Code, Cursor, Codex and GitHub Copilot.",
+  "author": { "name": "Roshan Venugopal" },
+  "homepage": "https://github.com/roshanis/blackadder-dlc",
+  "repository": "https://github.com/roshanis/blackadder-dlc",
+  "license": "MIT",
+  "keywords": ["sdlc", "workflow", "tracer-bullets", "verification", "supabase", "vercel"],
+  "extensions": {
+    "com.github.copilot": {}
+  }
+}

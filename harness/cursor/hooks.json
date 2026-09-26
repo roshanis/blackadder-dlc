@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "hooks": {
+    "beforeShellExecution": [
+      { "command": "bash hooks/blackadder-guard.sh cursor beforeShellExecution", "timeout": 10 }
+    ],
+    "afterFileEdit": [
+      { "command": "bash hooks/blackadder-guard.sh cursor afterFileEdit", "timeout": 10 }
+    ]
+  }
+}

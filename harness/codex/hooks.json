@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .codex/hooks/blackadder-guard.sh codex PreToolUse",
+            "statusMessage": "Blackadder guard",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

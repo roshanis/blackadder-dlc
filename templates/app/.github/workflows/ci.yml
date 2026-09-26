@@ -1,0 +1,80 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with: { fetch-depth: 0 }
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test:unit
+      - name: env contract (every env var read in code is declared in .env.example)
+        run: bash scripts/env-contract.sh
+      - name: acceptance tests are owned by the acceptance author
+        run: bash scripts/acceptance-ownership.sh "${{ github.event.pull_request.base.sha || 'HEAD~1' }}"
+      - name: secrets scan
+        uses: gitleaks/gitleaks-action@v2
+        env: { GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}" }
+      - name: dependency policy
+        run: pnpm audit --audit-level high && bash scripts/license-allowlist.sh
+
+  database:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: supabase/setup-cli@v1
+        with: { version: latest }
+      - name: migration lint (forward-only, RLS in same file, destructive ops flagged)
+        run: bash scripts/migration-lint.sh
+      - name: reset from empty (all migrations + seed)
+        run: supabase start && supabase db reset
+      - name: RLS lint (every table has RLS + ≥1 policy)
+        run: psql "$(supabase status -o env | grep DB_URL | cut -d= -f2- | tr -d '\"')" -v ON_ERROR_STOP=1 -f scripts/rls-lint.sql
+      - name: pgTAP
+        run: supabase test db
+      - name: types are current
+        run: supabase gen types typescript --local > /tmp/types.ts && diff -q /tmp/types.ts packages/db/src/database.types.ts
+
+  acceptance:
+    # Runs the acceptance + regression suites against the Vercel preview once it is ready.
+    needs: [checks, database]
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - name: wait for Vercel preview
+        id: preview
+        uses: patrickedqvist/wait-for-vercel-preview@v1.3.2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          max_timeout: 600
+      - run: pnpm exec playwright install --with-deps chromium
+      - name: acceptance + regression
+        env:
+          BASE_URL: ${{ steps.preview.outputs.url }}
+        run: pnpm test:acceptance
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: acceptance-report, path: tests/acceptance/report }

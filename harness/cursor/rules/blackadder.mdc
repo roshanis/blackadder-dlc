@@ -1,0 +1,17 @@
+---
+description: Blackadder DLC guardrails (always on). The full rules live in AGENTS.md at the repo root; this rule makes sure they are loaded and names the Cursor-specific bits.
+alwaysApply: true
+---
+
+Read and obey `AGENTS.md` at the repository root; it is the canonical Blackadder DLC contract.
+
+Cursor specifics:
+- Phase skills: `/blackadder`, `/ideate`, `/plan`, `/architect`, `/design-system`, `/skeleton`,
+  `/slice <id>`, `/verify`, `/release`, `/change-request`.
+- Subagents: `blackadder-acceptance-author`, `blackadder-builder`, `blackadder-verifier`.
+  Build and verify never share a context. Prefer a different model for the verifier.
+- If pstack is installed, `/slice` routes the build through `/poteto-mode`'s `feature`
+  playbook; Blackadder still owns phases, gates and `.blackadder/` state.
+- `.cursor/hooks.json` reverts any edit under `tests/acceptance/` that was not made by the
+  acceptance author, and denies deploy/force-push/linked-DB commands. Do not work around it.
+- Headless: `agent -p "/slice INC-03" --output-format json` (add `--force` only in CI).

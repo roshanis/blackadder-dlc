@@ -1,0 +1,36 @@
+name: blackadder-claude
+
+# Alternative to gh-aw for Claude Code: @claude mentions and `blackadder:slice` issue labels.
+on:
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+  issues:
+    types: [labeled]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  id-token: write
+  actions: read
+
+jobs:
+  claude:
+    if: >
+      (github.event_name == 'issues' && github.event.label.name == 'blackadder:slice') ||
+      (github.event_name != 'issues' && contains(github.event.comment.body, '@claude'))
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with: { fetch-depth: 0 }
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          plugin_marketplaces: https://github.com/roshanis/blackadder-dlc.git
+          plugins: blackadder@blackadder-dlc
+          prompt: ${{ github.event_name == 'issues' && format('/slice {0}', github.event.issue.title) || '' }}
+          claude_args: |
+            --max-turns 80
+            --permission-mode auto

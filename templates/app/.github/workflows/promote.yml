@@ -1,0 +1,47 @@
+name: promote
+
+# Human-gated production deploy. Agents may dispatch this; the `production` environment's
+# required reviewers must approve before any step runs.
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag (must equal the staging SHA)
+        required: true
+      migration_risk:
+        description: none | additive | destructive | config
+        required: true
+        type: choice
+        options: [none, additive, destructive, config]
+
+permissions:
+  contents: write
+  deployments: write
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v5
+        with: { ref: "${{ inputs.tag }}" }
+      - name: verify tag == staging head
+        run: |
+          git fetch origin main
+          test "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)" || { echo "tag is not the staging head"; exit 1; }
+      - name: destructive migrations need a second approval
+        if: inputs.migration_risk == 'destructive'
+        run: echo "::notice::destructive migration — second reviewer required by environment rules"
+      - uses: supabase/setup-cli@v1
+      - name: record previous deployment ids for rollback
+        run: echo "previous=$(git rev-parse HEAD~1)" >> "$GITHUB_OUTPUT"
+        id: prev
+      - name: apply migrations to production
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: supabase link --project-ref "${{ secrets.SUPABASE_PROJECT_REF }}" && supabase db push
+      - name: promote web (Vercel Git integration builds production from the tag)
+        run: git push origin "${{ inputs.tag }}:refs/heads/production"
+      - name: smoke test
+        run: curl -fsS "${{ vars.PROD_URL }}/api/health" | grep -q '"ok"'

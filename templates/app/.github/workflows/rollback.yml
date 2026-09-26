@@ -1,0 +1,25 @@
+name: rollback
+
+# Human-dispatched. Code rollback is safe because migrations are expand/contract:
+# N-1 code always runs against schema N.
+on:
+  workflow_dispatch:
+    inputs:
+      to_ref:
+        description: Previous release tag or SHA
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  rollback:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v5
+        with: { ref: "${{ inputs.to_ref }}" }
+      - name: re-point production at previous ref
+        run: git push --force origin "${{ inputs.to_ref }}:refs/heads/production"
+      - name: smoke test
+        run: curl -fsS "${{ vars.PROD_URL }}/api/health" | grep -q '"ok"'

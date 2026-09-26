@@ -1,0 +1,28 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/scripts/guard.sh\" claude PreToolUse",
+            "timeout": 10,
+            "statusMessage": "Blackadder guard"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/scripts/guard.sh\" claude PreToolUse",
+            "timeout": 10,
+            "statusMessage": "Blackadder guard"
+          }
+        ]
+      }
+    ]
+  }
+}
