@@ -7,6 +7,10 @@ owner: ideate
 approved_by: []
 approved_at: null
 autonomy: balanced       # supervised | balanced | autopilot
+design_source: [agent]   # any of: agent | claude-design | figma | stitch
+design_review: annotate  # annotate (findings never block) | block (rubric categories B may be major)
+budget_usd_per_slice: 8
+budget_usd_project: 150
 changes_from_previous: null
 ---
 

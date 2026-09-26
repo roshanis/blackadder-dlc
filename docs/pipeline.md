@@ -104,3 +104,35 @@ through in `autopilot` with a fixed budget and compare: rounds per slice, human
 interruptions per slice, cost per slice, escaped defects at release verify. A regression in
 these numbers is a failing test for this repo. Every app records the pipeline version it was
 built with (`.blackadder/pipeline.lock`).
+
+## Design
+
+Agents cannot see, taste is not in the docs, and design decisions drift per screen. So the
+design track produces only code and images, decided once, enforced by lint and diff:
+
+1. **Direction** — three rendered HTML boards; the human picks (arena for taste).
+2. **System** — `DESIGN.md` (open design.md format: YAML tokens + prose, eight ordered
+   sections, linted for WCAG contrast and structure). Tokens are exported from it into
+   `packages/ui/tailwind.tokens.css`; CI fails if that file is hand-edited. Components from
+   shadcn/Radix restyled from tokens only; the `/design-system` route is the pixel-exact oracle.
+3. **Screens** — `/proto/S-NNN` static prototypes built from `packages/ui`; their screenshots
+   are the baseline a UI slice must match within a per-screen threshold.
+4. **Enforcement** — `scripts/design-lint.sh` (no raw values, imports only from `packages/ui`),
+   the Playwright visual harness (breakpoints × themes + axe + overflow), and the design
+   reviewer's rubric (hierarchy, rhythm, tokens, states, responsive, copy, fidelity, a11y).
+5. **Dials** — `design_source` (claude-design | figma | stitch | agent) and `design_review`
+   (`annotate` → findings never block; `block` → categories B may be `major`). Start with
+   `annotate`; switch after ~5 UI slices if fewer than 1 in 5 findings were noise.
+
+Human touchpoints for design: pick a direction, approve the reference route, approve the
+first screen prototypes. Then only diffs.
+
+## Token use
+
+Cost is a first-class constraint: each role has a context contract (read the slice, not the
+tree); build/verify/design-review run in subagents so the orchestrator stays small; budgets
+are hard ceilings recorded in `units.tsv`; deterministic checks run before any agent is
+called; loops and turns are bounded; the design reviewer samples images; and the stable
+prefixes (`AGENTS.md`, `DESIGN.md`, skills) are kept timestamp-free so prompt caching hits.
+Treat cost per completed slice as a pipeline metric alongside rounds per slice and escaped
+defects.

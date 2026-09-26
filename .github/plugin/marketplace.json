@@ -1,0 +1,13 @@
+{
+  "name": "blackadder-dlc",
+  "owner": { "name": "Roshan Venugopal", "url": "https://github.com/roshanis" },
+  "description": "Blackadder Development Life Cycle — plugin marketplace (GitHub Copilot entry point)",
+  "plugins": [
+    {
+      "name": "blackadder",
+      "source": "./copilot",
+      "description": "Idea → plan → architecture + design system → walking skeleton → verified tracer-bullet slices → release. Skills, custom agents and guard hook for GitHub Copilot (CLI, VS Code, cloud agent).",
+      "version": "0.2.0"
+    }
+  ]
+}

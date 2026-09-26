@@ -38,6 +38,7 @@ safe-outputs:
     max: 3
 timeout-minutes: 45
 max-turns: 80
+max-ai-credits: 400   # per-run ceiling for engine: copilot; the idea doc's USD budgets apply to every engine
 ---
 
 # Blackadder DLC runner
