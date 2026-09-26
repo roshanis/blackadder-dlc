@@ -1,7 +1,7 @@
 # Blackadder DLC
 
 An idea-to-production development life cycle for AI coding agents — **the same pipeline on
-Claude Code, Cursor, Codex and GitHub Copilot**.
+Claude Code, Cursor, Codex and GitHub Copilot**, one folder per tool.
 
 ```
 ideate → plan (+ slice ladder) → architect ∥ design-system → skeleton (slice 0)
@@ -10,48 +10,48 @@ ideate → plan (+ slice ladder) → architect ∥ design-system → skeleton (s
 
 Small verified tracer-bullet slices; acceptance tests written *before* the build by a
 different context; a fresh-context verifier with a SHA-keyed verdict; bounded loops; four
-human gates; agents that never hold production secrets. The full contract is in
-[`AGENTS.md`](AGENTS.md); the design rationale is in [`docs/pipeline.md`](docs/pipeline.md).
+human gates; agents that never hold production secrets. The contract is
+[`AGENTS.md`](AGENTS.md); the rationale is [`docs/pipeline.md`](docs/pipeline.md).
 
-## What's in the box
+## Layout
 
-| Layer | Portable | Per harness |
-|---|---|---|
-| Instructions | `AGENTS.md` (read by all four) | `CLAUDE.md` (`@AGENTS.md`), `.cursor/rules/blackadder.mdc`, `.github/copilot-instructions.md` |
-| Skills (10) | `skills/*/SKILL.md` — Agent Skills standard | copied to `.claude/skills`, `.cursor/skills`, `.agents/skills`, `.github/skills` |
-| Roles (3) | acceptance-author · builder · verifier | `agents/*.md` (Claude), `harness/cursor/agents/*.md`, `harness/codex/agents/*.toml`, `com.github.copilot/agents/*.agent.md` |
-| Guard hook | `hooks/scripts/guard.sh` (one script) | `hooks/hooks.json` (Claude), `harness/cursor/hooks.json`, `harness/codex/hooks.json`, `com.github.copilot/hooks/hooks.json` |
-| Plugin manifests | `plugin.json` (Agent Plugins 1.0: Codex, Cursor, Copilot, VS Code) | `.claude-plugin/` (Claude Code + Copilot legacy), `.cursor-plugin/`, `.agents/plugins/` (Codex marketplace) |
-| Templates | `templates/docs/` (idea, plan, slices, architecture, design system, ADR, CR…) · `templates/app/` (CI, promote/rollback, RLS + migration linters, seeds, migration 0001) · `templates/workflows/` (gh-aw + per-vendor Actions) | |
+```
+AGENTS.md              canonical, harness-neutral contract (all four tools read it)
+skills/                canonical skills (Agent Skills standard) — edit here, then scripts/sync.sh
+hooks/blackadder-guard.sh   canonical guard hook (one script, four payload/decision formats)
+templates/             docs/ (idea, plan, slices, architecture, design system, ADR, CR…)
+                       app/ (CI, promote/rollback, RLS + migration linters, seeds, migration 0001)
+                       workflows/blackadder.md (gh-aw slash-command workflow, engine-agnostic)
+scripts/               install.sh · sync.sh · validate.sh
+docs/                  pipeline.md (design notes)
+
+claude-code/           Claude Code plugin root   → .claude-plugin/plugin.json, skills/, agents/, hooks/, workflow.yml, README.md
+cursor/                Cursor plugin root        → .cursor-plugin/plugin.json + plugin.json, skills/, agents/, rules/, hooks.json, workflow.yml, README.md
+codex/                 Codex plugin root         → plugin.json (Agent Plugins 1.0), skills/, agents/*.toml, hooks.json, config.toml.example, workflow.yml, README.md
+copilot/               Copilot plugin root       → plugin.json + com.github.copilot/{agents,hooks}, skills/, copilot-instructions.md, README.md
+
+.claude-plugin/marketplace.json     → ./claude-code   (Claude Code)
+.cursor-plugin/marketplace.json     → cursor          (Cursor)
+.agents/plugins/marketplace.json    → ./codex         (Codex)
+.github/plugin/marketplace.json     → ./copilot       (Copilot CLI / VS Code)
+```
+
+`<tool>/skills/` and `<tool>/hooks/blackadder-guard.sh` are committed copies of the root
+sources (plugin specs forbid paths that escape the plugin root, so no symlinks).
+`scripts/validate.sh` fails if they drift.
 
 ## Install
 
-### Claude Code
-```
-/plugin marketplace add roshanis/blackadder-dlc
-/plugin install blackadder@blackadder-dlc
-```
-Project-local alternative: `scripts/install.sh claude <app-repo>`. Details: [docs/setup-claude.md](docs/setup-claude.md).
+| Tool | Plugin (recommended) | Project-local |
+|---|---|---|
+| **Claude Code** | `/plugin marketplace add roshanis/blackadder-dlc` → `/plugin install blackadder@blackadder-dlc` | `scripts/install.sh claude <app-repo>` |
+| **Cursor** | Customize → Plugins → add marketplace/plugin from GitHub `roshanis/blackadder-dlc` | `scripts/install.sh cursor <app-repo>` |
+| **Codex** | `codex plugin marketplace add roshanis/blackadder-dlc` → `codex plugin add blackadder@blackadder-dlc` | `scripts/install.sh codex <app-repo>` |
+| **Copilot** | `copilot plugin marketplace add roshanis/blackadder-dlc` → `copilot plugin install blackadder@blackadder-dlc` | `scripts/install.sh copilot <app-repo>` |
 
-### Cursor
-Add the plugin from this repository (Customize → Plugins → add from GitHub → `roshanis/blackadder-dlc`),
-or project-local: `scripts/install.sh cursor <app-repo>`. Details: [docs/setup-cursor.md](docs/setup-cursor.md).
+Each tool's `README.md` has the full walkthrough (project prep, subagents, hooks, headless
+and GitHub automation). All four at once, with the app template and the gh-aw workflow:
 
-### Codex
-```
-codex plugin marketplace add roshanis/blackadder-dlc
-codex plugin add blackadder@blackadder-dlc      # or /plugins inside a session
-```
-Project-local: `scripts/install.sh codex <app-repo>` (skills → `.agents/skills`, agents → `.codex/agents`). Details: [docs/setup-codex.md](docs/setup-codex.md).
-
-### GitHub Copilot (CLI, VS Code, cloud agent)
-```
-copilot plugin marketplace add roshanis/blackadder-dlc
-copilot plugin install blackadder@blackadder-dlc
-```
-Project-local (also what the cloud agent reads): `scripts/install.sh copilot <app-repo>`. Details: [docs/setup-copilot.md](docs/setup-copilot.md).
-
-### All four at once, plus the app template and GitHub workflows
 ```
 git clone https://github.com/roshanis/blackadder-dlc
 blackadder-dlc/scripts/install.sh all <app-repo> --app-template --workflows gh-aw
@@ -59,7 +59,7 @@ blackadder-dlc/scripts/install.sh all <app-repo> --app-template --workflows gh-a
 
 ## Use
 
-In the app repo, in any of the four harnesses:
+In the app repo, in any of the four tools:
 
 ```
 /blackadder            where are we, what's next (routes to the right phase)
@@ -80,26 +80,18 @@ and `codex`.
 
 ## With pstack
 
-If [pstack](https://github.com/cursor/plugins/tree/main/pstack) (or its
-[Claude Code/Codex port](https://github.com/michael-denyer/pstack-claude)) is installed,
+If [pstack](https://github.com/cursor/plugins/tree/main/pstack) (native on Cursor) or its
+[Claude Code/Codex port](https://github.com/michael-denyer/pstack-claude) is installed,
 `/slice` routes the build through `/poteto-mode`'s `feature` playbook and its verification
 lanes. Blackadder keeps ownership of the phases, gates, documents and `.blackadder/` state.
 
-## Repo layout
+## Contributing to the pipeline
+
+Edit `skills/`, `hooks/blackadder-guard.sh` or a tool folder, then:
 
 ```
-AGENTS.md  CLAUDE.md  plugin.json  .claude-plugin/  .cursor-plugin/  .agents/plugins/
-skills/            blackadder ideate plan architect design-system skeleton slice verify release change-request
-agents/            Claude Code subagents
-harness/           cursor/{agents,rules,hooks.json}  codex/{agents,hooks.json,config.toml.example}  copilot/copilot-instructions.md
-com.github.copilot/ agents/*.agent.md  hooks/hooks.json     (Agent Plugins 1.0 extension namespace)
-hooks/             hooks.json (Claude)  scripts/guard.sh (shared)
-templates/         docs/  app/  workflows/
-scripts/           install.sh  validate.sh
-docs/              pipeline.md  setup-claude.md  setup-cursor.md  setup-codex.md  setup-copilot.md
+scripts/sync.sh && scripts/validate.sh
 ```
-
-Run `scripts/validate.sh` before committing changes to the plugin.
 
 ## License
 
