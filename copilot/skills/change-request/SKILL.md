@@ -19,7 +19,7 @@ and change the lowest doc that must change.
 |---|---|---|---|
 | **L1** | code is wrong, docs are right | `bug` sub-issue on the slice → `/slice` fix round | no |
 | **L2** | an AC was under-specified or a slice missed something | `/plan` patch version (changelog by AC id), one slice added or amended | soft gate |
-| **L3** | architecture or design must change | `/architect` or `/design-system` writes an ADR + minor version with an `Affects:` list; `/plan --reconcile` on affected slices only; merged slices get a follow-up slice, not a rewrite | **hard gate** |
+| **L3** | architecture or design must change | `/architect` or `/design --sync`/`--system` writes an ADR + `DESIGN.md` minor version (with `design.md diff`) and an `Affects:` list; `/plan --reconcile` on affected slices only; merged slices get a follow-up slice, not a rewrite | **hard gate** |
 | **L4** | the idea changes (scope, persona, a WON'T becomes a MUST) | `/ideate` conversation scoped to the CR; idea vN+1 with changelog; downstream re-evaluated by ID | **hard gate** |
 
 3. Mark downstream items whose upstream IDs changed as `stale` in `slices.md` /

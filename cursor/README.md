@@ -48,3 +48,18 @@ agent -p "/verify" --force --output-format text        # --force applies/execute
 `workflow.yml` (installed as `.github/workflows/blackadder-cursor.yml`) runs
 `/blackadder…`, `/slice…`, `/verify` comments through the Cursor CLI on Actions (secret
 `CURSOR_API_KEY`). Cursor Cloud Agents can run the same prompts via the Cloud Agents API.
+
+## Design sources
+
+Set `design_source` in `docs/blackadder/01-idea.md` (any of `claude-design`, `figma`,
+`stitch`, `agent`) and `design_review` (`annotate` | `block`). `/design --sync <source>`
+refreshes `DESIGN.md` from the source of truth; CI lints `DESIGN.md` and fails if
+`packages/ui/tailwind.tokens.css` was hand-edited.
+
+- **Figma** — add the Dev Mode MCP server (`https://mcp.figma.com/mcp`); see
+  `templates/app/mcp/README.md` for this harness's config file. Set up Code Connect so Figma
+  components map to `packages/ui`.
+- **Stitch** — export `DESIGN.md` from the Stitch project into the repo root; add the Stitch
+  MCP server for `/design --directions` and `--screen`.
+- **Claude Design** — sync happens in Claude Code (`/design-sync`); this harness consumes the
+  resulting `DESIGN.md`, `packages/ui` and `/proto/*` routes from the repo.

@@ -96,3 +96,39 @@ scripts/sync.sh && scripts/validate.sh
 ## License
 
 MIT.
+
+## Design track
+
+Design is code plus a visual oracle. `/design` produces three rendered direction boards
+(human picks), then `DESIGN.md` in [Google's open design.md format](https://github.com/google-labs-code/design.md)
+(linted for contrast and structure; tokens *generated* from it), `packages/ui` + a
+`/design-system` reference route (gate G2 = the human looks at it), then a static
+`/proto/S-NNN` prototype per screen that becomes the visual baseline a UI slice is diffed
+against. A vision-capable `blackadder-design-reviewer` applies a fixed rubric in `/verify`
+and `/release`; its findings annotate by default and block once you flip
+`design_review: block`. Sources: Claude Design (`/design-sync`), Figma (Dev Mode MCP +
+Code Connect), Stitch (`DESIGN.md` import/export + MCP), or agent-only.
+
+## Token use
+
+The pipeline is built to spend tokens on judgment, not re-reading:
+
+- **Context contracts per role** — dispatcher reads front matter + state files; builder reads
+  its slice, ACs, relevant doc sections, `lessons.md` and its acceptance tests; verifier reads
+  the diff + ACs; design reviewer reads `DESIGN.md`, the screen spec and *sampled* images.
+- **Hard budgets** — `budget_usd_per_slice` / `budget_usd_project` in the idea doc; spend is
+  recorded per run in `.blackadder/units.tsv` and `/blackadder` shows it; a round that would
+  exceed the ceiling opens a gate instead of running.
+- **Deterministic first** — lint, typecheck, `design.md lint`, RLS/migration lint and the
+  visual harness run in CI at zero tokens; agents act on results.
+- **Bounded everything** — 3 verify rounds, `maxTurns` on every agent, `max-turns` and
+  `max-ai-credits` available in the gh-aw workflow.
+- **Cache-friendly** — `AGENTS.md`, `DESIGN.md` and skills are stable, timestamp-free
+  prefixes; phase skills are `disable-model-invocation` so idle sessions carry little.
+- **Cheap images** — the design reviewer opens diff images and one reference pair per
+  screen, not all six screenshots.
+
+Knobs, cheapest first: `autonomy: autopilot` (fewer human round-trips), lower the per-slice
+budget, keep `design_review: annotate`, and set a smaller model on the builder subagent for
+mechanical rounds (`model:` in each harness's agent file) while keeping the verifier and
+design reviewer on the strongest model.

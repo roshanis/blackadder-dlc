@@ -25,6 +25,12 @@ secrets). If they haven't, open a gate listing exactly what is missing and stop.
   gitleaks, env-contract check, Playwright against the preview URL once Vercel reports ready.
 - `.env.example` as the env contract; CI fails if code reads an undeclared var.
 - `/api/health` checks DB connectivity and returns the git SHA.
+- `DESIGN.md` at the root (from `/design --system`), `packages/ui/tailwind.tokens.css`
+  generated from it, the `/design-system` reference route, and the `/proto/*` route
+  convention (static prototypes with fake data; excluded from production builds).
+- `tests/acceptance/visual/` harness (Playwright screenshots × breakpoints × themes + axe)
+  with the reference-route baseline recorded; `playwright.config.ts`; `.mcp.json` for the
+  Figma MCP server if `design_source` includes `figma`.
 - One page renders the design tokens and calls `/api/health`.
 - Vercel preview per PR (Git integration; no agent holds a Vercel token), Supabase preview
   branch per PR, staging deploy on merge to `main` (`staging.yml` runs migrations with the

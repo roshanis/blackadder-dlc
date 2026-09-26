@@ -14,8 +14,13 @@ Run in a fresh context, against **staging**, not a preview:
 
 1. Full `tests/acceptance/` suite + cross-slice user journeys (the top 5 from
    `03-architecture.md` data flows) end to end.
-2. NFRs from `02-plan.md` with numbers: p95 on seeded volume, availability probe, a11y
-   (axe on every screen in `S-` inventory + a manual keyboard pass), browser matrix smoke.
+2. NFRs from `02-plan.md` with numbers: p95 on seeded volume, availability probe, browser
+   matrix smoke.
+2b. UX walkthrough: `blackadder-design-reviewer` runs the visual harness for every screen in
+   the `S-` inventory on staging and walks the top 5 journeys, applying the design review
+   rubric end to end (hierarchy across screens, consistent states, copy tone, keyboard-only
+   completion of each journey). Findings follow the `design_review` dial; anything that
+   fails an AC or WCAG AA is a blocker regardless.
 3. Security checklist: RLS diff vs `03-architecture.md` (every table, every op); no secrets in
    repo (gitleaks); `npm audit` high = block; auth on every route (probe unauthenticated);
    dependency licenses in allowlist; privacy/terms pages exist if the plan's compliance

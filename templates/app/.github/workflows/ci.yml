@@ -36,6 +36,19 @@ jobs:
       - name: dependency policy
         run: pnpm audit --audit-level high && bash scripts/license-allowlist.sh
 
+  design:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with: { node-version: 22 }
+      - name: DESIGN.md lint (refs, primaries, WCAG contrast, section order)
+        run: npx --yes @google/design.md lint DESIGN.md
+      - name: tokens are generated from DESIGN.md, not hand-edited
+        run: npx --yes @google/design.md export DESIGN.md --format tailwind > /tmp/tokens.css && diff -q /tmp/tokens.css packages/ui/tailwind.tokens.css
+      - name: app code uses tokens and packages/ui only
+        run: bash scripts/design-lint.sh
+
   database:
     runs-on: ubuntu-latest
     steps:
@@ -55,7 +68,7 @@ jobs:
 
   acceptance:
     # Runs the acceptance + regression suites against the Vercel preview once it is ready.
-    needs: [checks, database]
+    needs: [checks, database, design]
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:

@@ -61,3 +61,19 @@ claude -p "/verify" --resume "$SESSION_ID"
 mentions, via `anthropics/claude-code-action@v1` with the plugin pre-installed
 (`plugin_marketplaces` + `plugins` inputs). Secret: `ANTHROPIC_API_KEY`. Or use gh-aw with
 `engine: claude` (`templates/workflows/blackadder.md`).
+
+## Design sources
+
+Set `design_source` in `docs/blackadder/01-idea.md` (any of `claude-design`, `figma`,
+`stitch`, `agent`) and `design_review` (`annotate` | `block`). `/design --sync <source>`
+refreshes `DESIGN.md` from the source of truth; CI lints `DESIGN.md` and fails if
+`packages/ui/tailwind.tokens.css` was hand-edited.
+
+- **Figma** — add the Dev Mode MCP server (`https://mcp.figma.com/mcp`); see
+  `templates/app/mcp/README.md` for this harness's config file. Set up Code Connect so Figma
+  components map to `packages/ui`.
+- **Stitch** — export `DESIGN.md` from the Stitch project into the repo root; add the Stitch
+  MCP server for `/design --directions` and `--screen`.
+- **Claude Design** — run `/design-sync` here to pull the Claude Design system's tokens and
+  components into the repo, then `/design --system` so `DESIGN.md` is refreshed for the
+  other harnesses. Finished designs hand off as a bundle this harness implements.

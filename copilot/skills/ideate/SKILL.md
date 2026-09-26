@@ -27,7 +27,10 @@ not leak into it.
 7. **Write** `docs/blackadder/01-idea.md` from `docs/blackadder/templates/idea.md` (installed by
    `scripts/install.sh`; fall back to the plugin's `templates/docs/`). Fill every section; stable IDs `P-`, `J-`,
    `R-`, `Q-`.
-8. **Set the autonomy dial** in front matter after asking: supervised / balanced / autopilot.
+8. **Set the dials** in front matter after asking: `autonomy` (supervised / balanced /
+   autopilot), `design_source` (which of claude-design / figma / stitch / agent the team
+   will use), `design_review` (`annotate` by default; `block` once calibrated), and
+   `budget_usd_per_slice`.
 9. **Open gate G0** in `.blackadder/gates.md` (see `/blackadder` for the shape). Also open a
    GitHub issue titled `[Epic] <name>` if a GitHub tool is available, with a 10-line summary,
    the 3–5 decisions made on the human's behalf, and the label `blackadder:gate`.

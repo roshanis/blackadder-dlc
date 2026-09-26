@@ -52,3 +52,18 @@ switch to `claude` or `codex` with the matching API-key secret. The workflow ins
 plugin via `plugins: [roshanis/blackadder-dlc@main]`, responds to `/blackadder`, `/slice`,
 `/verify`, `/release`, `/change-request` in issues and PRs, and writes only through
 `safe-outputs` (comments, draft PRs, labels) — the agent job itself is read-only and sandboxed.
+
+## Design sources
+
+Set `design_source` in `docs/blackadder/01-idea.md` (any of `claude-design`, `figma`,
+`stitch`, `agent`) and `design_review` (`annotate` | `block`). `/design --sync <source>`
+refreshes `DESIGN.md` from the source of truth; CI lints `DESIGN.md` and fails if
+`packages/ui/tailwind.tokens.css` was hand-edited.
+
+- **Figma** — add the Dev Mode MCP server (`https://mcp.figma.com/mcp`); see
+  `templates/app/mcp/README.md` for this harness's config file. Set up Code Connect so Figma
+  components map to `packages/ui`.
+- **Stitch** — export `DESIGN.md` from the Stitch project into the repo root; add the Stitch
+  MCP server for `/design --directions` and `--screen`.
+- **Claude Design** — sync happens in Claude Code (`/design-sync`); this harness consumes the
+  resulting `DESIGN.md`, `packages/ui` and `/proto/*` routes from the repo.

@@ -18,7 +18,7 @@ ideate → plan (+ slice ladder) → architect ∥ design-system → skeleton (s
 | Ideate | `/ideate` | `docs/blackadder/01-idea.md` | **G0 hard** — human approves the Idea doc |
 | Plan | `/plan` | `02-plan.md` + `slices.md` | **G1 hard** — human approves plan + slice ladder |
 | Architect | `/architect` | `03-architecture.md` + `supabase/migrations/0001_*.sql` | **G2 hard** (with design) |
-| Design system | `/design-system` | `04-design-system.md` + `packages/ui` + `/design-system` route | **G2 hard** — approved by *looking at it* |
+| Design | `/design` | direction boards → `DESIGN.md` + generated tokens + `packages/ui` + `/design-system` route → `/proto/S-NNN` prototypes | **G2 hard** — approved by *looking at it*; first screens soft |
 | Skeleton | `/skeleton` | slice 0 live on a preview URL, CI green | G3 — preview URL works |
 | Slice | `/slice <id>` | one PR per slice, acceptance tests pass, verifier approves | soft per slice (autonomy dial) |
 | Verify | `/verify` | verdict in `.blackadder/ledger.tsv` keyed by PR + SHA | — |
@@ -56,6 +56,11 @@ Run `/blackadder` to find out which phase the project is in and what to do next.
    `ADR-0002`, `CR-0001`). Findings and change requests cite IDs, never "the plan".
 10. **Record what you built against.** Every slice PR body and every ledger row carries the
     commit SHAs of the docs it was built from. A doc change marks downstream slices `stale`.
+11. **Design is code plus a visual oracle.** `DESIGN.md` (open design.md format) is the
+    system; tokens are generated from it, never hand-written; app code uses only those tokens
+    and `packages/ui`. The screen's `/proto/S-NNN` prototype is the spec a UI slice is
+    diffed against; every deviation is declared under "Design delta". The design reviewer's
+    findings block only when `design_review: block`.
 
 ## Where things live in an app repo
 
@@ -64,11 +69,44 @@ docs/blackadder/            01-idea.md 02-plan.md 03-architecture.md 04-design-s
                             slices.md ASSUMPTIONS.md lessons.md adr/ cr/
 .blackadder/                units.tsv ledger.tsv decisions.tsv gates.md  (machine state, single writer)
 tests/acceptance/<slice>/   written before build; builder may not touch
+tests/acceptance/visual/    screenshot × breakpoint × theme + axe lanes; baselines change only in /design PRs
+DESIGN.md                   the design system (linted); packages/ui/tailwind.tokens.css is generated from it
+apps/web/app/proto/S-NNN/   static screen prototypes = the spec for UI slices
 supabase/migrations/        forward-only; RLS in the same migration
 supabase/seed.sql           prod-safe reference data
 supabase/seed.dev.sql       fake users/tenants for local + preview only
 .github/workflows/ci.yml    lint, typecheck, unit, db reset + pgTAP, RLS lint, migration lint, gitleaks, e2e vs preview
 ```
+
+## Token discipline
+
+Every run is paid for by the person using this pipeline. Spend tokens on judgment, not on
+re-reading.
+
+- **Read the slice, not the tree.** Each role has a context contract: the dispatcher reads
+  front matter and state files only; the builder reads its slice row, ACs, the relevant
+  `03-architecture.md` and screen sections, `lessons.md` and its acceptance tests; the
+  verifier reads the diff, the ACs and the pinned doc sections; the design reviewer reads
+  `DESIGN.md`, the screen spec and images. Nobody reads `docs/blackadder/` wholesale.
+- **Delegate to keep the orchestrator small.** Build, verify and design review run in
+  subagents; the orchestrating context only routes and records. Resume a builder within a
+  slice; never carry a session across slices.
+- **Images are expensive.** The design reviewer looks at diff images first and opens full
+  screenshots only for lanes with a non-zero diff, a failed axe/overflow check, or one
+  reference pair per screen (1440 light, 390 dark). Never all six per screen by default.
+- **Budgets are hard.** `budget_usd_per_slice` and `budget_usd_project` in `01-idea.md`;
+  spend is recorded per run in `.blackadder/units.tsv` (`spent_usd`). A round that would
+  exceed the ceiling does not start; the slice goes to `blocked` with a gate.
+- **Bounded loops, bounded turns.** Max 3 verify rounds; agents carry `maxTurns`/`max-turns`;
+  a stalled loop escalates instead of retrying.
+- **Deterministic before generative.** Lint, typecheck, `design.md lint`, RLS lint, migration
+  lint and the visual harness run in CI at zero tokens; agents are called only on their
+  results, never to re-derive them.
+- **Stable prefixes cache.** Keep `AGENTS.md`, `DESIGN.md` and skill bodies stable and
+  timestamp-free so prompt caching keeps hitting; put volatile state in `.blackadder/`.
+- **Phase skills load on demand.** They are `disable-model-invocation: true`; only
+  `/blackadder` and `/verify` are auto-discoverable, so idle sessions carry little pipeline
+  context.
 
 ## Working style
 
@@ -81,5 +119,9 @@ supabase/seed.dev.sql       fake users/tenants for local + preview only
 - When pstack (`/poteto-mode`) is installed, route `/slice` builds through its `feature`
   playbook and verification through its verification lanes. Blackadder skills still own the
   phases, gates and state files.
+- Design sources (`design_source` in the idea doc): Claude Design syncs via `/design-sync`
+  in Claude Code; Figma via the Dev Mode MCP server + Code Connect; Stitch via `DESIGN.md`
+  import/export and its MCP server. Whatever the source, `DESIGN.md` in the repo is the
+  truth CI lints.
 - Write for the reader: short PR bodies with Slice / Criteria / What changed / How to verify /
   Known gaps. No phase-narrating comments in code.

@@ -23,9 +23,14 @@ row and its ACs, the pinned docs, the PR diff, the preview URL and seeded creden
    new table; no service-role key reachable from client code; env vars declared in
    `.env.example`; module boundaries from `03-architecture.md` respected; indexes for new
    list queries (`EXPLAIN` if in doubt).
-6. **Design fidelity** (UI slices): screenshots at three breakpoints in both themes, axe run,
-   compare against the `/design-system` reference route and screenshot baselines. Deviations
-   not declared in the PR's "Design delta" are `minor` findings.
+6. **Design review** (UI slices): delegate to `blackadder-design-reviewer` (fresh context,
+   vision, read-only). It runs `tests/acceptance/visual` against the preview (390/834/1440 ×
+   light/dark, perceptual diff vs the screen's `/proto` baseline, pixel-exact diff of
+   `/design-system`, axe), looks at the images, and applies
+   `docs/blackadder/templates/design-review-rubric.md`. Merge its findings into yours.
+   Severity follows `design_review` in `01-idea.md`: `annotate` → all `minor`; `block` →
+   rubric categories marked B may be `major`. Deviations not declared under "Design delta"
+   are findings either way.
 7. **Verdict**: `pass` (no blocker/major), `pass-with-issues` (minor only), or `fail`.
    Flaky E2E: retry once; a test that flips is filed as `flaky`/`minor`, not functional.
 

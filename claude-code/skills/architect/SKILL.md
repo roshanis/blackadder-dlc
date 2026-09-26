@@ -43,7 +43,7 @@ document, never a diagram alone.
     feasibility, new slices). `/plan --reconcile` consumes this.
 11. Write `03-architecture.md` from `docs/blackadder/templates/architecture.md`, ADRs under
     `docs/blackadder/adr/ADR-NNNN-*.md`, and the migration/seed files. Open **gate G2**
-    (jointly with `/design-system`) and stop.
+    (jointly with `/design --system`) and stop.
 
 ## `/architect --onboard` (brownfield)
 

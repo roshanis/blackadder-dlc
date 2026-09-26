@@ -38,20 +38,37 @@ playbook here; otherwise:
 3. Sequence into verifiable units; commit each once its check passes.
 4. Unit tests are yours to write. `tests/acceptance/**` is not yours to touch — the hook and
    CI will reject it.
-5. Update `docs/blackadder/data-model.md` (regenerated) and `CHANGELOG.md` in the same PR.
-6. Open a **draft PR** with the template: Slice / Criteria (AC list) / What changed /
+5. UI slices: the screen's prototype (`/proto/S-NNN`, from `/design --screen`) is the spec.
+   Use only `packages/ui` components and `DESIGN.md` tokens (`scripts/design-lint.sh`
+   enforces it); add the built route to `tests/acceptance/visual/visual.manifest.ts` as a
+   `prototype` lane entry. Any deviation from the prototype goes under "Design delta" in the
+   PR; undeclared deviations are findings.
+6. Update `docs/blackadder/data-model.md` (regenerated) and `CHANGELOG.md` in the same PR.
+7. Open a **draft PR** with the template: Slice / Criteria (AC list) / What changed /
    Architecture delta / Design delta / How to verify / Known gaps / Docs pinned (SHAs).
 
 Delegate the build to the **builder** subagent when the harness supports it so the
 orchestrating context stays small; resume the same builder session across rounds within
-this slice, never across slices.
+this slice, never across slices. Give the builder only the files it needs (see Token
+discipline in `AGENTS.md`): the slice row, its ACs, the relevant architecture and screen
+sections, `lessons.md`, and the acceptance tests — not the whole `docs/blackadder/` tree.
+
+## Budget
+
+`budget_usd_per_slice` in `01-idea.md` is a hard ceiling for the whole loop (acceptance
+author + builder rounds + verifier + design reviewer). After each delegated run, append the
+harness's reported cost to the `spent_usd` column of the slice's `units.tsv` row (Claude Code:
+`total_cost_usd` from `--output-format json`; other harnesses: their usage report, or `n/a`).
+If the next round would exceed the ceiling, do not start it: mark the row `blocked`, open a
+gate with the spend, the remaining findings and "split this slice" as the default, and stop.
 
 ## 3. Verify (round r of 3)
 
 Wait for CI on the PR head. If CI is red for reasons in this diff, fix and push; do not call
 the verifier on a red baseline. Then delegate to the **verifier** (fresh context, read-only +
 shell; a different model family from the builder when the harness allows). It follows
-`/verify` and writes a ledger row. Outcomes:
+`/verify` and writes a ledger row; for UI slices it also delegates to the
+**design reviewer**, whose findings block only when `design_review: block`. Outcomes:
 
 - `pass` → mark row `verifying→review`, PR ready for review. Under `balanced`/`autopilot`
   with no `human-gate: yes`, request merge; under `supervised`, open a soft gate.

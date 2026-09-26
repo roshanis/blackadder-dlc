@@ -28,7 +28,8 @@ first (reverse-engineer `03-architecture.md` from the code, marking every statem
 |---|---|---|
 | no idea doc, or `status: draft` | Ideate | `/ideate` |
 | idea `accepted`, no plan or plan `draft` | Plan | `/plan` |
-| plan `accepted`, no architecture or design system | Architect + Design | `/architect` and `/design-system` (parallel is fine) |
+| plan `accepted`, no architecture or `DESIGN.md` | Architect + Design | `/architect` and `/design --directions` → `--system` (parallel is fine) |
+| `DESIGN.md` approved, a UI slice `ready` whose screen has no `/proto` | Screen design | `/design --screen S-NNN` before `/slice` |
 | both `accepted`, slice `INC-00` not done | Skeleton | `/skeleton` |
 | `INC-00` done, any slice not done | Build loop | `/slice <next ready id>` |
 | all slices done, no release verdict | Release | `/release` |
@@ -47,8 +48,14 @@ Blackadder status
 Phase: build   Slice: INC-03 (round 2/3)   Open gates: none
 Docs pinned: idea@a1b2c3 plan@d4e5f6 arch@0a1b2c design@7f8e9d
 Slices: 2 done · 1 verifying · 4 ready · 0 stale
+Spend: INC-03 $3.10 / $8.00 · project $21.40 / $150.00
 Next: /slice INC-03
 ```
+
+Budget check before routing: if the current slice's `spent_usd` ≥ `budget_usd_per_slice`,
+or the project total ≥ `budget_usd_project`, do not dispatch; open a gate that shows the
+spend and asks for `budget +N` or `split`. Read only front matter and the state files to
+produce this block — never the full documents.
 
 Then invoke the next skill, or if a human gate is open, write the gate entry to
 `.blackadder/gates.md` in this exact shape and stop:
@@ -71,3 +78,11 @@ Reply: `go`, `go --with-notes: …`, or `redo: <reasons>`.
 
 Stop conditions override every level: touching auth, payments, PII schema, data deletion,
 public API changes, adding a paid service, or any production action always escalates.
+
+## Design dials (same front matter)
+
+- `design_source`: any of `agent`, `claude-design`, `figma`, `stitch` — where `/design`
+  pulls directions, tokens and screens from.
+- `design_review`: `annotate` (design-reviewer findings are always `minor`) or `block`
+  (rubric categories marked B may be `major` and block a slice). Start with `annotate`;
+  switch after ~5 UI slices if fewer than 1 in 5 findings were noise.

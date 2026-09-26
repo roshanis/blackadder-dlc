@@ -37,7 +37,7 @@ say so.
 
 ## Reconciliation mode: `/plan --reconcile`
 
-Run after `/architect` and `/design-system` produce their "plan impacts" lists. Process ONLY
+Run after `/architect` and `/design --system` produce their "plan impacts" lists. Process ONLY
 those impacts: re-sequence, split, or amend slices; produce `02-plan.md` vN+1 with a
 changelog by ID. One round. If reconciliation would require changing the architecture,
 open a change request (`/change-request`) instead of looping.
