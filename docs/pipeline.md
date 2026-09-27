@@ -63,8 +63,8 @@ compare-and-swap and webhooks are at-least-once):
 GitHub Issues/PRs are the **human-facing mirror and command surface** (`/slice`, `/verify`
 comments via gh-aw), never the source of truth.
 
-This mirrors pstack's `units.tsv / ledger.tsv / frontier.json / decisions.tsv` design;
-where pstack is installed its `orchestrate` playbook can own the multi-PR frontier.
+The ledger layout was informed by pstack's `units.tsv / ledger.tsv / frontier.json /
+decisions.tsv` design; pstack itself is not a dependency (see "Deliberately not installed").
 
 ## Feedback: an address and a ladder
 
@@ -147,8 +147,8 @@ in every session.
 |---|---|---|
 | mattpocock/skills (53) | not installed | `grill-*` ≈ `/ideate`, `to-spec`/`to-tickets` ≈ `/plan`, `implement`/`tdd` ≈ builder, `code-review` ≈ verifier, `domain-modeling` ≈ `/architect`; its tickets also make the issue tracker the source of truth, which we rejected |
 | Impeccable skill set (24) | not installed | `shape`/`critique`/`audit`/`polish`/`document`/`extract` ≈ the `/design` track and the design reviewer |
+| pstack (Cursor) / pstack-claude port | not installed | `feature` and verification playbooks ≈ `/slice` + `/verify`; `orchestrate` ≈ `.blackadder/` ledgers |
 | Impeccable **detector** | **used** | `npx impeccable detect` — 61 deterministic anti-slop rules, zero LLM calls, no skills installed; runs in CI and before the design reviewer (`scripts/design-detect.sh`) |
 
-The same rule is why pstack is optional rather than required: its `feature` playbook overlaps
-`/slice`. Its `orchestrate` ledger design informed `.blackadder/`, but nothing from it is a
-dependency.
+Credit where due: pstack's ledger design informed `.blackadder/`, and Impeccable's rules
+informed the anti-slop checks. Neither is installed.

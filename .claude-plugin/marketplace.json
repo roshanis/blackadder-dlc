@@ -7,7 +7,7 @@
       "name": "blackadder",
       "source": "./claude-code",
       "description": "Idea → plan → architecture + design system → walking skeleton → verified tracer-bullet slices → release. Skills, subagents and guard hook for Claude Code.",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "category": "workflow",
       "tags": ["sdlc", "tracer-bullets", "verification"]
     }

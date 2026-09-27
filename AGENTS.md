@@ -121,9 +121,6 @@ re-reading.
 - Name the data shape before writing code. Model the domain, then the boundary, then the UI.
 - Verify against the real surface (preview URL, real DB) rather than a proxy. CI green is an
   input to a verdict, not a verdict.
-- When pstack (`/poteto-mode`) is installed, route `/slice` builds through its `feature`
-  playbook and verification through its verification lanes. Blackadder skills still own the
-  phases, gates and state files.
 - Design sources (`design_source` in the idea doc): Claude Design syncs via `/design-sync`
   in Claude Code; Figma via the Dev Mode MCP server + Code Connect; Stitch via `DESIGN.md`
   import/export and its MCP server. Whatever the source, `DESIGN.md` in the repo is the
