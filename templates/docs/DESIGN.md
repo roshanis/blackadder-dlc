@@ -30,41 +30,43 @@ colors:
   warning: "#8a5a00"
   on-warning: "#ffffff"
 typography:
+  # <ui-face> and <mono-face> are chosen at gate G2a from the direction boards. Never Inter,
+  # Roboto, Arial, Helvetica or system defaults — scripts/design-lint.sh rejects them.
   display:
-    fontFamily: Inter
+    fontFamily: "<ui-face>"
     fontSize: 40px
     fontWeight: "700"
     lineHeight: 48px
     letterSpacing: -0.02em
   headline:
-    fontFamily: Inter
+    fontFamily: "<ui-face>"
     fontSize: 28px
     fontWeight: "600"
     lineHeight: 36px
     letterSpacing: -0.01em
   title:
-    fontFamily: Inter
+    fontFamily: "<ui-face>"
     fontSize: 20px
     fontWeight: "600"
     lineHeight: 28px
   body:
-    fontFamily: Inter
+    fontFamily: "<ui-face>"
     fontSize: 16px
     fontWeight: "400"
     lineHeight: 24px
   body-sm:
-    fontFamily: Inter
+    fontFamily: "<ui-face>"
     fontSize: 14px
     fontWeight: "400"
     lineHeight: 20px
   label:
-    fontFamily: Inter
+    fontFamily: "<ui-face>"
     fontSize: 14px
     fontWeight: "500"
     lineHeight: 20px
     letterSpacing: 0.01em
   mono:
-    fontFamily: JetBrains Mono
+    fontFamily: "<mono-face>"
     fontSize: 13px
     fontWeight: "400"
     lineHeight: 20px
@@ -153,8 +155,8 @@ AA-large.
 
 ## Typography
 
-`Inter` for UI, `JetBrains Mono` for code and identifiers. The scale has seven steps; do not
-introduce intermediate sizes. Headings use `headline`/`title`; body copy `body`; controls and
+`<ui-face>` for UI, `<mono-face>` for code and identifiers — both chosen from the direction
+boards, never a default face. The scale has seven steps; do not introduce intermediate sizes. Headings use `headline`/`title`; body copy `body`; controls and
 table headers `label`. Line length 60–75 characters for reading surfaces.
 
 ## Layout
@@ -190,3 +192,6 @@ placeholder-as-label. Tables: sticky header, `table-row-hover`, empty state uses
 - Don't add a new color, size or radius per screen; propose it here.
 - Don't use placeholder-as-label, lorem ipsum, or disabled buttons without a reason shown.
 - Don't animate anything longer than 200 ms or without `prefers-reduced-motion` respect.
+- Don't ship the AI-slop tells: default typefaces, purple→blue gradients, glassmorphism by
+  default, pure black or untinted gray, gray text on colored backgrounds, cards nested in cards,
+  bounce/elastic easing, dark glows. `scripts/design-detect.sh` checks these at zero token cost.

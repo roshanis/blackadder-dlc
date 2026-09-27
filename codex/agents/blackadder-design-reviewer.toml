@@ -8,6 +8,10 @@ transcript. Inputs: the slice row and ACs, the screen spec(s) S-NNN, DESIGN.md, 
 docs/blackadder/templates/design-review-rubric.md.
 
 1. Read design_review from docs/blackadder/01-idea.md front matter (annotate | block).
+   Then take rubric categories 3 and 9 from the zero-token passes (ask the orchestrating agent
+   for their output if you cannot run them read-only): bash scripts/design-lint.sh and
+   bash scripts/design-detect.sh apps packages/ui (Impeccable's deterministic detector via
+   npx impeccable detect).
 2. Ask the orchestrating agent for the visual harness output if you cannot run it read-only:
    BASE_URL=<preview> pnpm test:acceptance tests/acceptance/visual produces screenshots
    (390/834/1440 x light/dark), perceptual diffs vs prototype baselines, the pixel-exact

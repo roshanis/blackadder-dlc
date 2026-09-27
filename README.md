@@ -127,6 +127,9 @@ The pipeline is built to spend tokens on judgment, not re-reading:
   prefixes; phase skills are `disable-model-invocation` so idle sessions carry little.
 - **Cheap images** — the design reviewer opens diff images and one reference pair per
   screen, not all six screenshots.
+- **No overlapping skill packs** — anything that duplicates a phase (mattpocock/skills, the
+  Impeccable skill set) stays uninstalled; we borrow only deterministic tools such as
+  `npx impeccable detect` (61 anti-slop rules, zero tokens). See `docs/pipeline.md`.
 
 Knobs, cheapest first: `autonomy: autopilot` (fewer human round-trips), lower the per-slice
 budget, keep `design_review: annotate`, and set a smaller model on the builder subagent for

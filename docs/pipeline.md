@@ -136,3 +136,19 @@ called; loops and turns are bounded; the design reviewer samples images; and the
 prefixes (`AGENTS.md`, `DESIGN.md`, skills) are kept timestamp-free so prompt caching hits.
 Treat cost per completed slice as a pipeline metric alongside rounds per slice and escaped
 defects.
+
+## Deliberately not installed
+
+Rule: if a skill pack overlaps a Blackadder phase, we do not need it. Two flavors of "plan" or
+"critique" in front of the router cause drift, and every installed skill costs its description
+in every session.
+
+| Considered | Decision | Why |
+|---|---|---|
+| mattpocock/skills (53) | not installed | `grill-*` ≈ `/ideate`, `to-spec`/`to-tickets` ≈ `/plan`, `implement`/`tdd` ≈ builder, `code-review` ≈ verifier, `domain-modeling` ≈ `/architect`; its tickets also make the issue tracker the source of truth, which we rejected |
+| Impeccable skill set (24) | not installed | `shape`/`critique`/`audit`/`polish`/`document`/`extract` ≈ the `/design` track and the design reviewer |
+| Impeccable **detector** | **used** | `npx impeccable detect` — 61 deterministic anti-slop rules, zero LLM calls, no skills installed; runs in CI and before the design reviewer (`scripts/design-detect.sh`) |
+
+The same rule is why pstack is optional rather than required: its `feature` playbook overlaps
+`/slice`. Its `orchestrate` ledger design informed `.blackadder/`, but nothing from it is a
+dependency.

@@ -25,7 +25,12 @@ Read `docs/blackadder/01-idea.md` front matter: `design_source` (any of `claude-
 2. Produce **three distinct** self-contained HTML boards at
    `docs/blackadder/design/directions/{a,b,c}.html` (inline CSS, both themes, no build):
    a hero, a form, a data table, a card grid, a nav, an empty state, primary/secondary buttons.
-   Each board states its one-sentence thesis and what it deliberately is *not*.
+   Each board states its one-sentence thesis and what it deliberately is *not*. Every board
+   must pass `npx impeccable detect docs/blackadder/design/directions/<x>.html` (deterministic,
+   zero tokens): no default typefaces (Inter/Roboto/Arial/system), no purple→blue gradients,
+   no glassmorphism by default, no pure black or untinted gray, no gray text on colored
+   backgrounds, no nested cards, no bounce easing. Distinct means different type, color
+   temperature, density and shape language — not three shades of the same board.
    - With `stitch`: generate the three boards in Stitch (MCP `generate screen` per direction)
      and export as HTML into the same paths.
    - With `claude-design`: in Claude Code run `/design` (Claude Design) to create the three
@@ -48,7 +53,8 @@ Read `docs/blackadder/01-idea.md` front matter: `design_source` (any of `claude-
      three harnesses see the same system.
    - `agent`: derive from the chosen direction board.
 2. `npx @google/design.md lint DESIGN.md` must pass (broken refs, missing primaries, WCAG
-   contrast, section order). Fix before continuing.
+   contrast, section order), and so must `bash scripts/design-lint.sh` (no default typeface,
+   no pure black). Fix before continuing.
 3. **Tokens are generated, never hand-written**: `npx @google/design.md export DESIGN.md
    --format tailwind > packages/ui/tailwind.tokens.css` (or `--format dtcg` →
    `packages/ui/tokens.json`). The Tailwind config imports only that file.
@@ -106,3 +112,8 @@ are re-recorded only inside that CR's PR.
   marked blocking be `major`.
 - Accessibility is structural: contrast in `DESIGN.md` (linted), keyboard/ARIA per component,
   axe in the visual harness.
+- Deterministic first: `scripts/design-lint.sh` and `scripts/design-detect.sh` (Impeccable's
+  61-rule detector via `npx impeccable detect`, no skills installed) run before any agent
+  looks at a screenshot.
+- Not installed, by decision: skill packs whose phases overlap this track (the Impeccable
+  skill set, mattpocock/skills). Only their deterministic tools are used.
