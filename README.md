@@ -13,6 +13,157 @@ different context; a fresh-context verifier with a SHA-keyed verdict; bounded lo
 human gates; agents that never hold production secrets. The contract is
 [`AGENTS.md`](AGENTS.md); the rationale is [`docs/pipeline.md`](docs/pipeline.md).
 
+## Install
+
+| Tool | Plugin (recommended) | Project-local |
+|---|---|---|
+| **Claude Code** | `/plugin marketplace add roshanis/blackadder-dlc` → `/plugin install blackadder@blackadder-dlc` | `scripts/install.sh claude <app-repo>` |
+| **Cursor** | Customize → Plugins → add marketplace/plugin from GitHub `roshanis/blackadder-dlc` | `scripts/install.sh cursor <app-repo>` |
+| **Codex** | `codex plugin marketplace add roshanis/blackadder-dlc` → `codex plugin add blackadder@blackadder-dlc` | `scripts/install.sh codex <app-repo>` |
+| **Copilot** | `copilot plugin marketplace add roshanis/blackadder-dlc` → `copilot plugin install blackadder@blackadder-dlc` | `scripts/install.sh copilot <app-repo>` |
+| **Muse Code** | `muse plugins marketplace add blackadder-dlc https://github.com/roshanis/blackadder-dlc.git` → `muse plugins install blackadder@blackadder-dlc` (needs `MUSE_EXPERIMENTAL_PLUGINS=1`) | `scripts/install.sh muse <app-repo>` |
+| **OpenClaw** | `openclaw plugins install blackadder --marketplace git:github.com/roshanis/blackadder-dlc` (skills) or `openclaw plugins install ./openclaw` (skills + guard) | `scripts/install.sh openclaw <app-repo>` |
+
+Type plugin commands **one per prompt** and press Enter between them (pasting both on one
+line makes the harness read the second command as part of the marketplace name). Skills
+are discovered at session start, so **restart the harness after installing**.
+
+Each tool's `README.md` has the full walkthrough (project prep, subagents, hooks, headless
+and GitHub automation). Everything at once, with the app template and the gh-aw workflow:
+
+```
+git clone https://github.com/roshanis/blackadder-dlc
+blackadder-dlc/scripts/install.sh all <app-repo> --app-template --workflows gh-aw
+```
+
+## How to use
+
+### 1. Set up each app repo (once per project)
+
+```bash
+mkdir my-app && cd my-app && git init
+git clone https://github.com/roshanis/blackadder-dlc /tmp/blackadder-dlc
+/tmp/blackadder-dlc/scripts/install.sh claude . --app-template --workflows gh-aw   # or cursor | codex | copilot | muse | openclaw | all
+git add -A
+git add -f .claude        # only if a global gitignore hides .claude/ (or add `!.claude/` to .gitignore)
+git commit -m "Install Blackadder DLC kit"
+```
+
+The installer drops in `AGENTS.md` (the contract every harness reads), the doc templates, the
+`.blackadder/` state files, `docs/bootstrap.md` (the manual infra checklist), the app CI
+(RLS, migration and design lint, the visual harness), promote/rollback workflows and, with
+`--workflows gh-aw`, the GitHub slash-command workflow. It never overwrites a file you already
+own; re-run it after updating the kit to refresh the files it owns.
+
+If you installed the plugin, the project-local skills and agents are harmless duplicates;
+delete `.claude/skills` and `.claude/agents` (or the equivalent) if you want only the plugin.
+
+### 2. Drive it with `/blackadder`
+
+Open the repo in your harness and type **`/blackadder`**. It reads the state files and tells
+you the phase, the spend so far and the next command. You never need to remember the order:
+
+```
+/blackadder  →  "run /ideate"  →  you run it  →  it stops at a gate  →  you answer  →  /blackadder …
+```
+
+**The gate protocol is the whole interaction model.** When an agent needs a decision it
+writes one question with a proposed default into `.blackadder/gates.md` and stops. You reply
+in the next message:
+
+- `go` accepts the default
+- `go --with-notes: …` accepts, with notes injected into the next phase
+- `redo: …` re-runs the phase with your reasons
+
+Anything reversible it proceeds on and logs in `docs/blackadder/ASSUMPTIONS.md`.
+
+### 3. What you do, phase by phase
+
+| Command | You… |
+|---|---|
+| `/ideate` | have a conversation (one question at a time); set the dials when asked; approve `01-idea.md` (gate G0) |
+| `/plan` | read `slices.md` carefully: the slice ladder is the artifact that matters most (gate G1) |
+| `/architect` + `/design --directions` | glance at the architecture doc and migration 0001; **open the three HTML boards and pick one** |
+| `/design --system` | open the `/design-system` route and approve by looking (gate G2) |
+| `/skeleton` | first do `docs/bootstrap.md` by hand (Vercel, Supabase, GitHub Environments); then confirm the preview URL works (gate G3) |
+| `/design --screen S-001` | approve the first two or three screen prototypes; after that only the diffs |
+| `/slice INC-NN` | nothing until a draft PR appears with a verifier verdict; then read the PR and merge |
+| `/verify` | run it yourself in a fresh session if you want a second opinion; it never edits app code |
+| `/release` → `/release --promote` | read the release note; reply `go` to deploy to production (gate G6) |
+| `/change-request <finding>` | any bug, review note or new idea after the plan is accepted goes here, not into a slice |
+
+### 4. The four dials
+
+Front matter of `docs/blackadder/01-idea.md`; set during `/ideate`, change any time:
+
+```yaml
+autonomy: balanced          # supervised = you merge every slice · balanced = auto-merge on verifier pass · autopilot
+design_source: [agent]      # any of claude-design | figma | stitch | agent
+design_review: annotate     # annotate = design findings never block · block = once you have calibrated a few reviews
+budget_usd_per_slice: 8     # hard ceiling; a round that would exceed it opens a gate instead of running
+```
+
+Start with `supervised` and `annotate` on your first project.
+
+### 5. From GitHub instead of the terminal
+
+With the gh-aw workflow installed (`gh extension install github/gh-aw && gh aw compile`
+once), comment on an issue or PR:
+
+```
+/slice INC-03      builds the slice and opens a draft PR
+/verify            posts the verdict on a PR
+/blackadder        status
+```
+
+Set `engine: copilot | claude | codex` in `.github/workflows/blackadder.md` and the matching
+API-key secret. `muse/workflow.yml` does the same for Muse Code with plain Actions.
+
+### 6. Where to look when something seems off
+
+- `.blackadder/gates.md`: what is waiting on you
+- `.blackadder/units.tsv`: per-slice state, rounds and `spent_usd`
+- `.blackadder/ledger.tsv`: every verifier verdict, keyed by PR and SHA
+- `docs/blackadder/ASSUMPTIONS.md`: defaults the agents took without asking
+- `docs/blackadder/lessons.md`: what cost rounds; the builder reads it before every slice
+
+## Your first project
+
+Do it in two stages so the cheap stage validates the doc phases before you pay for the build
+loop. Use a small app that still has auth, tenancy, CRUD and one async job (a team habit
+tracker with a weekly digest is about six slices); do not start with your real product.
+
+**Stage A, docs only** (an hour or two, a few dollars, no infrastructure): `/blackadder`,
+`/ideate`, `go`, `/plan`, `go`, `/architect` and `/design --directions`, pick a board,
+`/design --system`, `/plan --reconcile`. Pass means: every phase stopped at its gate instead
+of running on, every doc has front matter and stable IDs, the agent read only what its context
+contract says, and `slices.md` is something you would hand to a contractor.
+
+**Stage B, skeleton plus two slices** (needs Vercel and Supabase): do `docs/bootstrap.md`,
+then `/skeleton`, `/design --screen S-001`, `/slice INC-01`, `/slice INC-02`. Watch the loop:
+red acceptance tests are committed first, the builder is refused when it touches
+`tests/acceptance/` (try it), CI runs, the verifier posts a JSON verdict and a ledger row, the
+design reviewer annotates. Then read `units.tsv` and `ledger.tsv`: rounds per slice, dollars
+per slice, human interruptions per slice and escaped defects are the pipeline's own test
+result. Write them into `docs/blackadder/lessons.md`.
+
+## Troubleshooting
+
+- **`Unknown command: /blackadder`**: the kit is not installed in this project or session, or
+  the harness was not restarted after installing. Install the plugin or run
+  `scripts/install.sh <tool> .`, then restart.
+- **`nothing to commit` after the install**: you cloned the kit but did not run
+  `scripts/install.sh` into the app repo, or `.claude/` is hidden by a global gitignore
+  (`git add -f .claude`).
+- **`its network source differs from the one declared for it in settings`** (Claude Code): a
+  stale marketplace entry from an earlier attempt. `/plugin marketplace remove blackadder-dlc`,
+  then add it again with one form only (`roshanis/blackadder-dlc`, not the full URL).
+- **The builder edited a file under `tests/acceptance/`**: the guard hook is not installed or
+  not enabled for that harness (see the tool folder's README). Revert the edit and fix the
+  hook before continuing; never merge such a PR.
+- **A slice keeps failing verification**: the loop stops after three rounds and opens a gate
+  with "split this slice" as the default. Take the default.
+
 ## Layout
 
 ```
@@ -43,59 +194,6 @@ openclaw/              OpenClaw plugin root      → openclaw.plugin.json + pack
 `<tool>/skills/` and `<tool>/hooks/blackadder-guard.sh` are committed copies of the root
 sources (OpenClaw's guard is native TypeScript in `openclaw/index.ts` instead) (plugin specs forbid paths that escape the plugin root, so no symlinks).
 `scripts/validate.sh` fails if they drift.
-
-## Install
-
-| Tool | Plugin (recommended) | Project-local |
-|---|---|---|
-| **Claude Code** | `/plugin marketplace add roshanis/blackadder-dlc` → `/plugin install blackadder@blackadder-dlc` | `scripts/install.sh claude <app-repo>` |
-| **Cursor** | Customize → Plugins → add marketplace/plugin from GitHub `roshanis/blackadder-dlc` | `scripts/install.sh cursor <app-repo>` |
-| **Codex** | `codex plugin marketplace add roshanis/blackadder-dlc` → `codex plugin add blackadder@blackadder-dlc` | `scripts/install.sh codex <app-repo>` |
-| **Copilot** | `copilot plugin marketplace add roshanis/blackadder-dlc` → `copilot plugin install blackadder@blackadder-dlc` | `scripts/install.sh copilot <app-repo>` |
-| **Muse Code** | `muse plugins marketplace add blackadder-dlc https://github.com/roshanis/blackadder-dlc.git` → `muse plugins install blackadder@blackadder-dlc` (needs `MUSE_EXPERIMENTAL_PLUGINS=1`) | `scripts/install.sh muse <app-repo>` |
-| **OpenClaw** | `openclaw plugins install blackadder --marketplace git:github.com/roshanis/blackadder-dlc` (skills) or `openclaw plugins install ./openclaw` (skills + guard) | `scripts/install.sh openclaw <app-repo>` |
-
-Each tool's `README.md` has the full walkthrough (project prep, subagents, hooks, headless
-and GitHub automation). Everything at once, with the app template and the gh-aw workflow:
-
-```
-git clone https://github.com/roshanis/blackadder-dlc
-blackadder-dlc/scripts/install.sh all <app-repo> --app-template --workflows gh-aw
-```
-
-## Use
-
-In the app repo, in any of the tools:
-
-```
-/blackadder            where are we, what's next (routes to the right phase)
-/ideate                → docs/blackadder/01-idea.md           gate G0
-/plan                  → 02-plan.md + slices.md               gate G1
-/architect             → 03-architecture.md + migration 0001  gate G2 ┐ run in parallel
-/design-system         → 04-design-system.md + packages/ui   gate G2 ┘
-/skeleton              → slice INC-00 live on a preview URL   gate G3
-/slice INC-03          → acceptance tests → build → CI → /verify → PR
-/verify                → fresh-context verdict in .blackadder/ledger.tsv
-/release               → release verify on staging; /release --promote is gate G6
-/change-request        → L1–L4 routing of any finding
-```
-
-From GitHub, with the gh-aw workflow installed: comment `/slice INC-03` or `/verify` on an
-issue/PR. Switch `engine:` in `.github/workflows/blackadder.md` between `copilot`, `claude`
-and `codex`.
-
-
-## Contributing to the pipeline
-
-Edit `skills/`, `hooks/blackadder-guard.sh` or a tool folder, then:
-
-```
-scripts/sync.sh && scripts/validate.sh
-```
-
-## License
-
-MIT.
 
 ## Design track
 
@@ -135,3 +233,15 @@ Knobs, cheapest first: `autonomy: autopilot` (fewer human round-trips), lower th
 budget, keep `design_review: annotate`, and set a smaller model on the builder subagent for
 mechanical rounds (`model:` in each harness's agent file) while keeping the verifier and
 design reviewer on the strongest model.
+## Contributing to the pipeline
+
+Edit `skills/`, `hooks/blackadder-guard.sh` or a tool folder, then:
+
+```
+scripts/sync.sh && scripts/validate.sh
+```
+
+## License
+
+MIT.
+
