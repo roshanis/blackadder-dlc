@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "blackadder",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Blackadder DLC for Cursor: idea → plan → architecture + design system → walking skeleton → verified tracer-bullet slices → release. Portable manifest alongside .cursor-plugin/plugin.json.",
   "author": { "name": "Roshan Venugopal" },
   "homepage": "https://github.com/roshanis/blackadder-dlc/tree/main/cursor",

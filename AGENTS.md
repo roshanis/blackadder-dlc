@@ -4,7 +4,8 @@ You are working inside a project that runs the **Blackadder Development Life Cyc
 an idea-to-production pipeline where AI agents build software in small, verified,
 tracer-bullet slices with a human at a few well-lit gates.
 
-This file is read by Claude Code, Cursor, Codex and GitHub Copilot. Keep it harness-neutral.
+This file is read by Claude Code, Cursor, Codex, GitHub Copilot, Muse Code and OpenClaw. Keep it
+harness-neutral.
 
 ## The pipeline in one screen
 

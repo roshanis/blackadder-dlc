@@ -1,0 +1,16 @@
+{
+  "name": "@roshanis/openclaw-blackadder",
+  "version": "0.4.0",
+  "description": "Blackadder DLC for OpenClaw: skills plus a before_tool_call guard.",
+  "type": "module",
+  "license": "MIT",
+  "repository": "https://github.com/roshanis/blackadder-dlc",
+  "homepage": "https://github.com/roshanis/blackadder-dlc/tree/main/openclaw",
+  "keywords": ["openclaw", "openclaw-plugin", "sdlc", "tracer-bullets", "verification"],
+  "openclaw": {
+    "extensions": ["./index.ts"],
+    "compat": { "pluginApi": ">=2026.8.1" },
+    "build": { "openclawVersion": "2026.8.1" }
+  },
+  "peerDependencies": { "openclaw": ">=2026.8.1" }
+}

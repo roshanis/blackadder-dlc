@@ -3,8 +3,9 @@
 # self-contained plugin root (plugin specs forbid paths that escape the plugin root, so
 # these are committed copies, not symlinks).
 #
-#   skills/                  → claude-code/skills  cursor/skills  codex/skills  copilot/skills
-#   hooks/blackadder-guard.sh → claude-code/hooks  cursor/hooks   codex/hooks   copilot/hooks
+#   skills/                  → claude-code/skills  cursor/skills  codex/skills  copilot/skills  muse/skills  openclaw/skills
+#   hooks/blackadder-guard.sh → claude-code/hooks  cursor/hooks   codex/hooks   copilot/hooks   muse/hooks
+#   (openclaw gets skills only: its guard is native TypeScript in openclaw/index.ts)
 #
 # Run after editing anything under skills/ or hooks/. `scripts/validate.sh --check-sync`
 # fails if a copy has drifted.
@@ -28,8 +29,9 @@ sync_file() { # src dst
   fi
 }
 
-for tool in claude-code cursor codex copilot; do
+for tool in claude-code cursor codex copilot muse; do
   sync_dir  skills                    "$tool/skills"
   sync_file hooks/blackadder-guard.sh "$tool/hooks/blackadder-guard.sh"
 done
+sync_dir skills openclaw/skills
 exit $rc

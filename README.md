@@ -1,7 +1,7 @@
 # Blackadder DLC
 
 An idea-to-production development life cycle for AI coding agents — **the same pipeline on
-Claude Code, Cursor, Codex and GitHub Copilot**, one folder per tool.
+Claude Code, Cursor, Codex, GitHub Copilot, Muse Code and OpenClaw**, one folder per tool.
 
 ```
 ideate → plan (+ slice ladder) → architect ∥ design-system → skeleton (slice 0)
@@ -16,9 +16,9 @@ human gates; agents that never hold production secrets. The contract is
 ## Layout
 
 ```
-AGENTS.md              canonical, harness-neutral contract (all four tools read it)
+AGENTS.md              canonical, harness-neutral contract (every tool reads it)
 skills/                canonical skills (Agent Skills standard) — edit here, then scripts/sync.sh
-hooks/blackadder-guard.sh   canonical guard hook (one script, four payload/decision formats)
+hooks/blackadder-guard.sh   canonical guard hook (one script, five payload/decision formats)
 templates/             docs/ (idea, plan, slices, architecture, design system, ADR, CR…)
                        app/ (CI, promote/rollback, RLS + migration linters, seeds, migration 0001)
                        workflows/blackadder.md (gh-aw slash-command workflow, engine-agnostic)
@@ -29,15 +29,19 @@ claude-code/           Claude Code plugin root   → .claude-plugin/plugin.json,
 cursor/                Cursor plugin root        → .cursor-plugin/plugin.json + plugin.json, skills/, agents/, rules/, hooks.json, workflow.yml, README.md
 codex/                 Codex plugin root         → plugin.json (Agent Plugins 1.0), skills/, agents/*.toml, hooks.json, config.toml.example, workflow.yml, README.md
 copilot/               Copilot plugin root       → plugin.json + com.github.copilot/{agents,hooks}, skills/, copilot-instructions.md, README.md
+muse/                  Muse Code plugin root     → .muse-plugin/plugin.json, skills/, agents/ (subagent briefs), hooks/, hooks.json, workflow.yml, README.md
+openclaw/              OpenClaw plugin root      → openclaw.plugin.json + package.json + index.ts (native guard), skills/, agents/<role>/AGENTS.md, openclaw.json.example, README.md
 
 .claude-plugin/marketplace.json     → ./claude-code   (Claude Code)
 .cursor-plugin/marketplace.json     → cursor          (Cursor)
 .agents/plugins/marketplace.json    → ./codex         (Codex)
 .github/plugin/marketplace.json     → ./copilot       (Copilot CLI / VS Code)
+.muse-plugin/marketplace.json       → ./muse          (Muse Code)
+(OpenClaw installs the Claude marketplace above as a bundle, or ./openclaw as a native plugin)
 ```
 
 `<tool>/skills/` and `<tool>/hooks/blackadder-guard.sh` are committed copies of the root
-sources (plugin specs forbid paths that escape the plugin root, so no symlinks).
+sources (OpenClaw's guard is native TypeScript in `openclaw/index.ts` instead) (plugin specs forbid paths that escape the plugin root, so no symlinks).
 `scripts/validate.sh` fails if they drift.
 
 ## Install
@@ -48,9 +52,11 @@ sources (plugin specs forbid paths that escape the plugin root, so no symlinks).
 | **Cursor** | Customize → Plugins → add marketplace/plugin from GitHub `roshanis/blackadder-dlc` | `scripts/install.sh cursor <app-repo>` |
 | **Codex** | `codex plugin marketplace add roshanis/blackadder-dlc` → `codex plugin add blackadder@blackadder-dlc` | `scripts/install.sh codex <app-repo>` |
 | **Copilot** | `copilot plugin marketplace add roshanis/blackadder-dlc` → `copilot plugin install blackadder@blackadder-dlc` | `scripts/install.sh copilot <app-repo>` |
+| **Muse Code** | `muse plugins marketplace add blackadder-dlc https://github.com/roshanis/blackadder-dlc.git` → `muse plugins install blackadder@blackadder-dlc` (needs `MUSE_EXPERIMENTAL_PLUGINS=1`) | `scripts/install.sh muse <app-repo>` |
+| **OpenClaw** | `openclaw plugins install blackadder --marketplace git:github.com/roshanis/blackadder-dlc` (skills) or `openclaw plugins install ./openclaw` (skills + guard) | `scripts/install.sh openclaw <app-repo>` |
 
 Each tool's `README.md` has the full walkthrough (project prep, subagents, hooks, headless
-and GitHub automation). All four at once, with the app template and the gh-aw workflow:
+and GitHub automation). Everything at once, with the app template and the gh-aw workflow:
 
 ```
 git clone https://github.com/roshanis/blackadder-dlc
@@ -59,7 +65,7 @@ blackadder-dlc/scripts/install.sh all <app-repo> --app-template --workflows gh-a
 
 ## Use
 
-In the app repo, in any of the four tools:
+In the app repo, in any of the tools:
 
 ```
 /blackadder            where are we, what's next (routes to the right phase)

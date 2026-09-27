@@ -13,6 +13,8 @@ Remote server, no desktop app needed; authenticates through your Figma account o
 | Cursor | `.cursor/mcp.json`: same `mcpServers` block |
 | Codex | `.codex/config.toml`: `[mcp_servers.figma]` `url = "https://mcp.figma.com/mcp"` |
 | Copilot (VS Code) | `.vscode/mcp.json`: `{"servers":{"figma":{"type":"http","url":"https://mcp.figma.com/mcp"}}}` |
+| Muse Code | `~/.config/muse/settings.json`: `"mcp_servers": {"figma": {"transport": "streamable_http", "url": "https://mcp.figma.com/mcp", "enabled": true}}` |
+| OpenClaw | `~/.openclaw/openclaw.json`: the gateway's MCP tools section, same URL |
 
 If you prefer the desktop server, use `http://127.0.0.1:3845/mcp` with Figma running.
 Set up **Code Connect** so each Figma component maps to its `packages/ui` export; `/design
@@ -29,4 +31,4 @@ Stitch MCP server (URL and token from your Stitch project settings → MCP) unde
 
 No MCP needed. In Claude Code, `/design-sync` reads the Claude Design system's tokens and
 components into the repo, and a finished design hands off as a bundle Claude Code implements.
-Run `/design --system` afterwards so `DESIGN.md` is refreshed for Cursor, Codex and Copilot.
+Run `/design --system` afterwards so `DESIGN.md` is refreshed for the other harnesses.

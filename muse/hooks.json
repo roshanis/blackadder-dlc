@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "write_file|edit_file|bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .muse/hooks/blackadder-guard.sh muse PreToolUse",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
