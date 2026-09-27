@@ -84,18 +84,21 @@ justifies it (workers, long-running, non-Node, WebSockets beyond Realtime).
 
 ## Cross-harness mechanics
 
-| | Claude Code | Cursor | Codex | Copilot |
-|---|---|---|---|---|
-| instructions | `CLAUDE.md` → `@AGENTS.md` | `AGENTS.md` + `.cursor/rules/*.mdc` | `AGENTS.md` | `AGENTS.md` + `.github/copilot-instructions.md` |
-| skills | `.claude/skills` / plugin `skills/` | `.cursor/skills` | `.agents/skills` | `.github/skills`, `.agents/skills` |
-| subagents | `agents/*.md` | `.cursor/agents/*.md` | `.codex/agents/*.toml` (explicit delegation) | `.github/agents/*.agent.md` |
-| hooks | `hooks/hooks.json` `PreToolUse` (exit 2 blocks) | `.cursor/hooks.json` (`beforeShellExecution` deny; `afterFileEdit` revert) | `.codex/hooks.json` `PreToolUse` | `.github/hooks/*.json` `preToolUse` |
-| plugin | `.claude-plugin/plugin.json` + `marketplace.json` | `.cursor-plugin/plugin.json` | Agent Plugins 1.0 `plugin.json` + `.agents/plugins/marketplace.json` | Agent Plugins 1.0 + `com.github.copilot/` |
-| headless | `claude -p … --output-format json` | `agent -p … --force` | `codex exec --sandbox workspace-write --json` | `copilot -p … --agent …` |
-| GitHub | `claude-code-action` / gh-aw `engine: claude` | Cursor CLI in Actions / Cloud Agents | `codex-action` / gh-aw `engine: codex` | cloud agent / gh-aw `engine: copilot` |
+| | Claude Code | Cursor | Codex | Copilot | Muse Code | OpenClaw |
+|---|---|---|---|---|---|---|
+| instructions | `CLAUDE.md` → `@AGENTS.md` | `AGENTS.md` + `.cursor/rules/*.mdc` | `AGENTS.md` | `AGENTS.md` + `.github/copilot-instructions.md` | `AGENTS.md` (falls back to `CLAUDE.md`) | workspace `AGENTS.md` per agent; repo `AGENTS.md` read on instruction |
+| skills | `.claude/skills` / plugin `skills/` | `.cursor/skills` | `.agents/skills` | `.github/skills`, `.agents/skills` | plugin `capabilities.skills`; `.claude/skills`, `.codex/skills` scanned | `<workspace>/skills`, `.agents/skills`, plugin `skills: [...]` |
+| subagents | `agents/*.md` | `.cursor/agents/*.md` | `.codex/agents/*.toml` (explicit delegation) | `.github/agents/*.agent.md` | `subagent_spawn` + briefs in `agents/*.md` (worktree isolation) | `sessions_spawn` + `agents.entries.<id>` with own workspace |
+| hooks | `hooks/hooks.json` `PreToolUse` (exit 2 blocks) | `.cursor/hooks.json` (`beforeShellExecution` deny; `afterFileEdit` revert) | `.codex/hooks.json` `PreToolUse` | `.github/hooks/*.json` `preToolUse` | manifest `capabilities.hooks` / `.muse/hooks.json` `PreToolUse` | native `api.on("before_tool_call")` → `{ block }` (Claude `hooks.json` detected, not run) |
+| plugin | `.claude-plugin/plugin.json` + `marketplace.json` | `.cursor-plugin/plugin.json` | Agent Plugins 1.0 `plugin.json` + `.agents/plugins/marketplace.json` | Agent Plugins 1.0 + `com.github.copilot/` | `.muse-plugin/plugin.json` (`schemaVersion: 1`, `compat.source: native`) | `openclaw.plugin.json` + `package.json` `openclaw.extensions`; or any Claude/Codex/Cursor bundle |
+| headless | `claude -p … --output-format json` | `agent -p … --force` | `codex exec --sandbox workspace-write --json` | `copilot -p … --agent …` | `muse exec --json --yolo --max-model-steps N` | cron / webhook automation in the gateway |
+| GitHub | `claude-code-action` / gh-aw `engine: claude` | Cursor CLI in Actions / Cloud Agents | `codex-action` / gh-aw `engine: codex` | cloud agent / gh-aw `engine: copilot` | `muse exec` in Actions (`muse/workflow.yml`) | n/a (chat-first; use another harness's CI) |
 
-One guard script (`hooks/scripts/guard.sh`) serves all four; it normalises the payload
-shapes and emits the harness's expected decision format.
+One guard script (`hooks/blackadder-guard.sh`) serves Claude Code, Cursor, Codex, Copilot and
+Muse Code; it normalises the payload shapes and emits the harness's expected decision format.
+OpenClaw runs no shell hooks from bundles, so its guard is the same policy as a native
+`before_tool_call` plugin (`openclaw/index.ts`), with the acceptance-author exception keyed on
+`ctx.agentId` instead of an environment variable.
 
 ## Evaluate the pipeline itself
 

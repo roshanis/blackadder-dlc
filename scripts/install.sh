@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Install the Blackadder DLC into an application repository for one or more harnesses.
 #
-#   scripts/install.sh <claude|cursor|codex|copilot|all> [target-dir] [--app-template] [--workflows <gh-aw|claude|codex|cursor|all>]
+#   scripts/install.sh <claude|cursor|codex|copilot|muse|openclaw|all> [target-dir] [--app-template] [--workflows <gh-aw|claude|codex|cursor|muse|all>]
 #
-# Sources are the per-tool folders in this repo (claude-code/, cursor/, codex/, copilot/).
+# Sources are the per-tool folders in this repo (claude-code/, cursor/, codex/, copilot/, muse/, openclaw/).
 # Idempotent; never overwrites a file you already have unless it is ours.
 #   common   AGENTS.md (created, or a pointer appended), docs/blackadder/{templates,ASSUMPTIONS.md,lessons.md},
 #            .blackadder/{units,ledger,decisions}.tsv + gates.md, docs/bootstrap.md
@@ -11,8 +11,11 @@
 #   cursor   .cursor/skills, .cursor/agents, .cursor/rules/blackadder.mdc, .cursor/hooks.json, .cursor/hooks/blackadder-guard.sh
 #   codex    .agents/skills, .codex/agents/*.toml, .codex/hooks.json, .codex/hooks/blackadder-guard.sh, .codex/config.toml
 #   copilot  .github/skills, .github/agents/*.agent.md, .github/hooks/blackadder.json + guard, .github/copilot-instructions.md
+#   muse     .agents/skills, .muse/agents/*.md (subagent briefs), .muse/hooks.json + .muse/hooks/blackadder-guard.sh
+#   openclaw .agents/skills only (OpenClaw is chat-first; install openclaw/ as a plugin for the guard and role agents)
 #   --app-template   templates/app/* (CI, promote/rollback, lint scripts, seeds, migration 0001, PR/issue templates)
 #   --workflows      gh-aw workflow (templates/workflows/blackadder.md) and/or <tool>/workflow.yml into .github/workflows/
+#                    (muse = muse/workflow.yml, needs secret MODEL_API_KEY)
 #
 # Prefer the plugin install where the harness supports it (see README); use this for
 # project-local installs, CI runners, the Copilot cloud agent, or harnesses without marketplace access.
@@ -120,6 +123,21 @@ install_copilot() {
   copy_if_missing "$SRC/copilot/copilot-instructions.md" "$TARGET/.github/copilot-instructions.md"
 }
 
+install_muse() {
+  echo "muse →"
+  copy_skills "$SRC/muse/skills" "$TARGET/.agents/skills"
+  for f in "$SRC"/muse/agents/*.md; do copy_ours "$f" "$TARGET/.muse/agents/$(basename "$f")"; done
+  copy_guard muse "$TARGET/.muse/hooks/blackadder-guard.sh"
+  merge_or_note "$SRC/muse/hooks.json" "$TARGET/.muse/hooks.json"
+  log "NOTE   Muse reads AGENTS.md first. If this build only scans .claude/skills and .codex/skills, run: muse skills import --from claude"
+}
+
+install_openclaw() {
+  echo "openclaw →"
+  copy_skills "$SRC/openclaw/skills" "$TARGET/.agents/skills"
+  log "NOTE   guard + role agents are the native plugin: openclaw plugins install $SRC/openclaw (see openclaw/README.md)"
+}
+
 install_app_template() {
   echo "app template →"
   ( cd "$SRC/templates/app" && find . -type f ! -path './.blackadder/*' | while read -r f; do
@@ -136,7 +154,8 @@ install_workflows() {
     claude) copy_if_missing "$SRC/claude-code/workflow.yml" "$TARGET/.github/workflows/blackadder-claude.yml" ;;
     codex)  copy_if_missing "$SRC/codex/workflow.yml"       "$TARGET/.github/workflows/blackadder-codex.yml" ;;
     cursor) copy_if_missing "$SRC/cursor/workflow.yml"      "$TARGET/.github/workflows/blackadder-cursor.yml" ;;
-    all)    for w in gh-aw claude codex cursor; do install_workflows "$w"; done ;;
+    muse)   copy_if_missing "$SRC/muse/workflow.yml"        "$TARGET/.github/workflows/blackadder-muse.yml" ;;
+    all)    for w in gh-aw claude codex cursor muse; do install_workflows "$w"; done ;;
     *) echo "unknown workflow set $1" >&2; exit 2 ;;
   esac
 }
@@ -147,8 +166,10 @@ case "$HARNESS" in
   cursor)  install_cursor ;;
   codex)   install_codex ;;
   copilot) install_copilot ;;
-  all)     install_claude; install_cursor; install_codex; install_copilot ;;
-  *) echo "unknown harness: $HARNESS (claude|cursor|codex|copilot|all)" >&2; exit 2 ;;
+  muse)    install_muse ;;
+  openclaw) install_openclaw ;;
+  all)     install_claude; install_cursor; install_codex; install_copilot; install_muse; install_openclaw ;;
+  *) echo "unknown harness: $HARNESS (claude|cursor|codex|copilot|muse|openclaw|all)" >&2; exit 2 ;;
 esac
 [ "$APP_TEMPLATE" = 1 ] && install_app_template
 [ -n "$WORKFLOWS" ] && install_workflows "$WORKFLOWS"

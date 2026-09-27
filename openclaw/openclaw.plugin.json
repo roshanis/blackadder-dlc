@@ -1,0 +1,19 @@
+{
+  "id": "blackadder",
+  "name": "Blackadder DLC",
+  "description": "Idea → plan → architecture + design system → walking skeleton → verified tracer-bullet slices → release. Skills, per-role agent workspaces and a before_tool_call guard for OpenClaw.",
+  "version": "0.4.0",
+  "skills": ["skills"],
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "acceptanceAuthorAgentIds": {
+        "type": "array",
+        "items": { "type": "string" },
+        "description": "Agent ids allowed to write under tests/acceptance/ (default: blackadder-acceptance-author).",
+        "default": ["blackadder-acceptance-author"]
+      }
+    }
+  }
+}

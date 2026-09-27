@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "blackadder",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Blackadder DLC for Codex: idea → plan → architecture + design system → walking skeleton → verified tracer-bullet slices → release. Skills are portable; custom agents and hooks install project-level via scripts/install.sh codex.",
   "author": { "name": "Roshan Venugopal" },
   "homepage": "https://github.com/roshanis/blackadder-dlc/tree/main/codex",

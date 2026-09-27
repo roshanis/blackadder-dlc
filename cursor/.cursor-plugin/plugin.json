@@ -1,7 +1,7 @@
 {
   "name": "blackadder",
   "displayName": "Blackadder DLC",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Idea → plan → architecture + design system → walking skeleton → verified tracer-bullet slices → release. Rigorous, gated, parallelizable.",
   "author": { "name": "Roshan Venugopal" },
   "homepage": "https://github.com/roshanis/blackadder-dlc/tree/main/cursor",

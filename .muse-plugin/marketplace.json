@@ -1,0 +1,13 @@
+{
+  "name": "blackadder-dlc",
+  "owner": { "name": "Roshan Venugopal", "url": "https://github.com/roshanis" },
+  "description": "Blackadder Development Life Cycle — plugin marketplace (Muse Code entry point)",
+  "plugins": [
+    {
+      "name": "blackadder",
+      "source": "./muse",
+      "description": "Idea → plan → architecture + design system → walking skeleton → verified tracer-bullet slices → release. Skills, subagent briefs and guard hook for Muse Code.",
+      "version": "0.4.0"
+    }
+  ]
+}

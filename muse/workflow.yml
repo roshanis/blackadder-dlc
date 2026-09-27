@@ -1,0 +1,47 @@
+name: blackadder-muse
+
+# Alternative to gh-aw for Muse Code: run /verify on every PR opened against main.
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with: { fetch-depth: 0 }
+      - name: install Muse Code and the Blackadder skills for this run
+        run: |
+          curl -fsSL https://dev.meta.ai/install.sh | bash
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          git clone --depth 1 https://github.com/roshanis/blackadder-dlc.git /tmp/blackadder
+          mkdir -p .agents/skills .muse/agents
+          cp -r /tmp/blackadder/muse/skills/* .agents/skills/
+          cp /tmp/blackadder/muse/agents/*.md .muse/agents/
+      - name: run /verify
+        id: run_muse
+        env:
+          MODEL_API_KEY: ${{ secrets.MODEL_API_KEY }}
+        run: |
+          cat > /tmp/verify.md <<EOT
+          Run the /verify skill (.agents/skills/verify/SKILL.md) against PR #${{ github.event.pull_request.number }}
+          at head ${{ github.event.pull_request.head.sha }}. Do not modify application code. Output only the JSON verdict.
+          EOT
+          muse exec --json --disable-approval --max-model-steps 60 --prompt-file /tmp/verify.md > /tmp/muse.jsonl || true
+          # last assistant text in the JSONL stream is the verdict
+          jq -r 'select(.type=="message" and .role=="assistant") | .content // .text // empty' /tmp/muse.jsonl | tail -n 60 > /tmp/verdict.txt
+          echo "verdict<<EOT" >> "$GITHUB_OUTPUT"; cat /tmp/verdict.txt >> "$GITHUB_OUTPUT"; echo "EOT" >> "$GITHUB_OUTPUT"
+      - uses: actions/github-script@v7
+        env:
+          VERDICT: ${{ steps.run_muse.outputs.verdict }}
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              ...context.repo, issue_number: context.payload.pull_request.number,
+              body: "### Blackadder verify (muse)\n```json\n" + process.env.VERDICT + "\n```"
+            })

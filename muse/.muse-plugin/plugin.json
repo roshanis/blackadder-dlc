@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "name": "blackadder",
+  "displayName": "Blackadder DLC",
+  "version": "0.4.0",
+  "description": "Idea → plan → architecture + design system → walking skeleton → verified tracer-bullet slices → release. Skills, subagent briefs and guard hook for Muse Code.",
+  "compat": {
+    "source": "native",
+    "manifestDir": ".muse-plugin"
+  },
+  "capabilities": {
+    "skills": [
+      { "id": "blackadder",     "path": "skills/blackadder/SKILL.md",     "enabledDefault": true },
+      { "id": "ideate",         "path": "skills/ideate/SKILL.md",         "enabledDefault": true },
+      { "id": "plan",           "path": "skills/plan/SKILL.md",           "enabledDefault": true },
+      { "id": "architect",      "path": "skills/architect/SKILL.md",      "enabledDefault": true },
+      { "id": "design",         "path": "skills/design/SKILL.md",         "enabledDefault": true },
+      { "id": "design-system",  "path": "skills/design-system/SKILL.md",  "enabledDefault": true },
+      { "id": "skeleton",       "path": "skills/skeleton/SKILL.md",       "enabledDefault": true },
+      { "id": "slice",          "path": "skills/slice/SKILL.md",          "enabledDefault": true },
+      { "id": "verify",         "path": "skills/verify/SKILL.md",         "enabledDefault": true },
+      { "id": "release",        "path": "skills/release/SKILL.md",        "enabledDefault": true },
+      { "id": "change-request", "path": "skills/change-request/SKILL.md", "enabledDefault": true },
+      { "id": "blackadder-acceptance-author", "path": "agents/blackadder-acceptance-author.md", "enabledDefault": true },
+      { "id": "blackadder-builder",           "path": "agents/blackadder-builder.md",           "enabledDefault": true },
+      { "id": "blackadder-verifier",          "path": "agents/blackadder-verifier.md",          "enabledDefault": true },
+      { "id": "blackadder-design-reviewer",   "path": "agents/blackadder-design-reviewer.md",   "enabledDefault": true }
+    ],
+    "commands": [],
+    "hooks": [
+      {
+        "id": "blackadder-guard",
+        "event": "PreToolUse",
+        "command": ["bash", "hooks/blackadder-guard.sh", "muse", "PreToolUse"],
+        "timeoutMs": 10000
+      }
+    ],
+    "mcpServers": [],
+    "reminders": []
+  }
+}

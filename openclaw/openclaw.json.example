@@ -1,0 +1,40 @@
+// Merge into ~/.openclaw/openclaw.json. Four Blackadder roles as named agents, each with its
+// own workspace (copy openclaw/agents/<role>/ there) and a skills allowlist. The lead agent
+// (your default) keeps the phase skills; role agents get only what their brief needs.
+{
+  plugins: {
+    entries: {
+      blackadder: {
+        enabled: true,
+        config: { acceptanceAuthorAgentIds: ["blackadder-acceptance-author"] },
+      },
+    },
+  },
+  agents: {
+    defaults: {
+      skills: ["blackadder", "ideate", "plan", "architect", "design", "design-system",
+               "skeleton", "slice", "verify", "release", "change-request"],
+      subagents: { model: "anthropic/claude-sonnet-5" },
+    },
+    entries: {
+      "blackadder-acceptance-author": {
+        workspace: "~/.openclaw/workspaces/blackadder-acceptance-author",
+        skills: ["slice"],
+      },
+      "blackadder-builder": {
+        workspace: "~/.openclaw/workspaces/blackadder-builder",
+        skills: ["slice", "skeleton"],
+      },
+      "blackadder-verifier": {
+        workspace: "~/.openclaw/workspaces/blackadder-verifier",
+        skills: ["verify"],
+        model: "anthropic/claude-fable-5-1",
+      },
+      "blackadder-design-reviewer": {
+        workspace: "~/.openclaw/workspaces/blackadder-design-reviewer",
+        skills: ["verify"],
+        model: "anthropic/claude-fable-5-1",
+      },
+    },
+  },
+}

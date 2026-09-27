@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Blackadder guard hook — shared by Claude Code, Codex, Cursor and Copilot.
+# Blackadder guard hook — shared by Claude Code, Codex, Cursor, Copilot and Muse Code.
 #
-# Usage: guard.sh <claude|codex|cursor|copilot> [event]
+# Usage: guard.sh <claude|codex|cursor|copilot|muse> [event]
 # Reads the harness's JSON payload on stdin and decides whether to block.
 #
 # Blocks:
@@ -9,7 +9,8 @@
 #   2. destructive or production-touching shell commands
 #
 # Exit/output conventions:
-#   claude, codex, copilot : JSON decision on stdout; exit 2 also blocks (Claude/Codex).
+#   claude, codex, copilot, muse : JSON decision on stdout; exit 2 also blocks (Claude/Codex/Muse).
+#                            Muse sends tool_input.path instead of file_path; both are read.
 #   cursor                 : {"permission":"deny",...} for before* events;
 #                            afterFileEdit cannot block, so the edit is reverted with git.
 set -euo pipefail
