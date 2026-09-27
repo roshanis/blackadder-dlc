@@ -78,12 +78,6 @@ From GitHub, with the gh-aw workflow installed: comment `/slice INC-03` or `/ver
 issue/PR. Switch `engine:` in `.github/workflows/blackadder.md` between `copilot`, `claude`
 and `codex`.
 
-## With pstack
-
-If [pstack](https://github.com/cursor/plugins/tree/main/pstack) (native on Cursor) or its
-[Claude Code/Codex port](https://github.com/michael-denyer/pstack-claude) is installed,
-`/slice` routes the build through `/poteto-mode`'s `feature` playbook and its verification
-lanes. Blackadder keeps ownership of the phases, gates, documents and `.blackadder/` state.
 
 ## Contributing to the pipeline
 

@@ -15,9 +15,6 @@ codex plugin add blackadder@blackadder-dlc        # or /plugins inside a session
 Codex reads the repo-root `.agents/plugins/marketplace.json` (→ `codex/`). Plugins carry
 **skills**; custom agents and hooks are project-level, so also run the installer below.
 
-pstack for Codex: `codex plugin marketplace add michael-denyer/pstack-claude` then
-`codex plugin add pstack@pstack-claude`.
-
 ## 2. Prepare the app repo
 
 ```

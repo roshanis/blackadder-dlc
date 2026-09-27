@@ -29,8 +29,7 @@ slice branch `blackadder/<INC-id>` so they are red first.
 
 ## 2. Build
 
-Branch `blackadder/<INC-id>` from `main`. If pstack is installed, run its `feature`
-playbook here; otherwise:
+Branch `blackadder/<INC-id>` from `main`. Then:
 
 1. Name the data shape first. Schema changes → new forward-only migration + RLS in this PR
    + "Architecture delta" section in the PR body.

@@ -7,7 +7,7 @@
       "name": "blackadder",
       "source": "./copilot",
       "description": "Idea → plan → architecture + design system → walking skeleton → verified tracer-bullet slices → release. Skills, custom agents and guard hook for GitHub Copilot (CLI, VS Code, cloud agent).",
-      "version": "0.2.0"
+      "version": "0.3.0"
     }
   ]
 }

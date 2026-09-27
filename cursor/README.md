@@ -13,9 +13,6 @@ marketplace points at `cursor/`). In Cursor: **Customize → Plugins → add fro
 `roshanis/blackadder-dlc`. If your Cursor build only accepts a plugin at the repo root, use
 the project-local install below.
 
-pstack is native here: `/add-plugin pstack`. With both installed, `/slice` routes builds
-through `/poteto-mode`'s `feature` playbook.
-
 ## 2. Prepare the app repo (hooks are project-level in Cursor)
 
 ```

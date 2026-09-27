@@ -1,6 +1,6 @@
 ---
 name: blackadder-builder
-description: Builds one Blackadder slice on its branch - data shape first, forward-only migration with RLS, verifiable units, unit tests, draft PR. Never touches tests/acceptance/. Resume the same builder across rounds within a slice. If pstack is installed, run its feature playbook inside this role.
+description: Builds one Blackadder slice on its branch - data shape first, forward-only migration with RLS, verifiable units, unit tests, draft PR. Never touches tests/acceptance/. Resume the same builder across rounds within a slice.
 is_background: true
 ---
 

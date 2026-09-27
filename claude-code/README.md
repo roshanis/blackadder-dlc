@@ -16,13 +16,6 @@ You get the ten skills (`/blackadder`, `/ideate`, `/plan`, `/architect`, `/desig
 `blackadder-acceptance-author` / `blackadder-builder` / `blackadder-verifier`, and the guard
 hook (blocks builder edits under `tests/acceptance/`, force-push, deploys, linked-DB commands).
 
-Optional, for the build playbooks:
-
-```
-/plugin marketplace add michael-denyer/pstack-claude
-/plugin install pstack@pstack-claude
-```
-
 ## 2. Prepare the app repo
 
 ```
