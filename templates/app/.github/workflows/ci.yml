@@ -46,8 +46,10 @@ jobs:
         run: npx --yes @google/design.md lint DESIGN.md
       - name: tokens are generated from DESIGN.md, not hand-edited
         run: npx --yes @google/design.md export DESIGN.md --format tailwind > /tmp/tokens.css && diff -q /tmp/tokens.css packages/ui/tailwind.tokens.css
-      - name: app code uses tokens and packages/ui only
+      - name: app code uses tokens and packages/ui only (+ anti-slop subset)
         run: bash scripts/design-lint.sh
+      - name: deterministic anti-pattern detector (npx impeccable detect, zero tokens; blocks only when design_review is block)
+        run: bash scripts/design-detect.sh apps packages/ui
 
   database:
     runs-on: ubuntu-latest

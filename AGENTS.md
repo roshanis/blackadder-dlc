@@ -99,9 +99,14 @@ re-reading.
   exceed the ceiling does not start; the slice goes to `blocked` with a gate.
 - **Bounded loops, bounded turns.** Max 3 verify rounds; agents carry `maxTurns`/`max-turns`;
   a stalled loop escalates instead of retrying.
-- **Deterministic before generative.** Lint, typecheck, `design.md lint`, RLS lint, migration
-  lint and the visual harness run in CI at zero tokens; agents are called only on their
-  results, never to re-derive them.
+- **Deterministic before generative.** Lint, typecheck, `design.md lint`, `design-lint.sh`,
+  `design-detect.sh` (Impeccable's 61-rule anti-slop detector), RLS lint, migration lint and
+  the visual harness run in CI at zero tokens; agents are called only on their results, never
+  to re-derive them.
+- **No overlapping skill packs.** Do not install skill sets whose phases duplicate Blackadder's
+  (mattpocock/skills, the Impeccable skill set, and the like): two "plan" or "critique" flavors
+  confuse routing and every installed skill costs its description in every session. Take
+  deterministic tools from them (`npx impeccable detect`), never competing phase skills.
 - **Stable prefixes cache.** Keep `AGENTS.md`, `DESIGN.md` and skill bodies stable and
   timestamp-free so prompt caching keeps hitting; put volatile state in `.blackadder/`.
 - **Phase skills load on demand.** They are `disable-model-invocation: true`; only

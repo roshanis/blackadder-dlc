@@ -18,6 +18,7 @@ diff, never an opinion. No style or naming findings outside these categories.
 | 6 | Copy | Real copy, sentence case, verbs on buttons, actionable errors, tone per `DESIGN.md` Overview; no lorem ipsum | — |
 | 7 | Fidelity | Perceptual diff vs the screen's prototype baseline within the manifest threshold; components pixel-exact vs the `/design-system` route; deviations declared under "Design delta" in the PR | **B** |
 | 8 | Accessibility | axe: zero serious/critical; keyboard order matches visual order; focus visible; every control labelled; `prefers-reduced-motion` respected | **B** |
+| 9 | Distinctiveness | No AI-slop tells: default typefaces, purple→blue gradients, glassmorphism by default, pure black/untinted gray, gray text on colored backgrounds, nested cards, bounce/elastic easing, dark glows. Evidence = `scripts/design-detect.sh` output (deterministic, zero tokens) | — (taste is the human's call at G2a) |
 
 ## Output
 
@@ -28,8 +29,10 @@ table of category → pass/fail per breakpoint × theme.
 
 ## Token discipline
 
-Images cost more than text. Order of inspection: (1) the harness summary and axe/overflow
-results, (2) diff images for lanes with a non-zero diff, (3) one full reference pair per
+Images cost more than text. Order of inspection: (0) the zero-token passes —
+`scripts/design-lint.sh` and `scripts/design-detect.sh` (categories 3 and 9 come from these,
+never from re-inspection), (1) the harness summary and axe/overflow results, (2) diff images
+for lanes with a non-zero diff, (3) one full reference pair per
 screen (1440 light, 390 dark), (4) any further full screenshot only when a finding needs it.
 Do not open all six screenshots per screen by default. Report per-lane pass/fail from the
 harness output, not from re-inspection.

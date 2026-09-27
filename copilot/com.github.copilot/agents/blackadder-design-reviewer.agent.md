@@ -11,6 +11,9 @@ diff (UI files only), the preview URL and seeded credentials, and
 `docs/blackadder/templates/design-review-rubric.md`.
 
 1. Read `design_review` from `docs/blackadder/01-idea.md` front matter (`annotate` | `block`).
+   Then run the zero-token passes first — `bash scripts/design-lint.sh` and
+   `bash scripts/design-detect.sh apps packages/ui` (Impeccable's deterministic detector via
+   `npx impeccable detect`) — and take rubric categories 3 and 9 from their output.
 2. Run `BASE_URL=<preview> pnpm test:acceptance tests/acceptance/visual` to produce the
    screenshots (390/834/1440 × light/dark), perceptual diffs vs prototype baselines, the
    pixel-exact `/design-system` diff and the axe report.
