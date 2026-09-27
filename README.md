@@ -12,6 +12,51 @@ Small verified tracer-bullet slices; acceptance tests written *before* the build
 different context; a fresh-context verifier with a SHA-keyed verdict; bounded loops; four
 human gates; agents that never hold production secrets. The contract is
 [`AGENTS.md`](AGENTS.md); the rationale is [`docs/pipeline.md`](docs/pipeline.md).
+New here? Start with [Quick start](#quick-start-new-users).
+
+## Quick start (new users)
+
+Blackadder is a set of slash commands for your AI coding tool. You describe a product, the
+agents write the plan, the architecture and the design system, and then build it one small
+verified piece at a time. You do not write code. You answer questions, read short
+documents, pick a design, and say `go` at a few gates.
+
+**You need**
+
+- one of: Claude Code, Cursor, Codex, GitHub Copilot, Muse Code or OpenClaw, signed in
+- `git`, Node.js 20+ and `jq` on your machine
+- a GitHub account; Vercel and Supabase accounts later, only when you reach the skeleton step
+
+**Ten minutes to the first gate**
+
+1. Install the plugin in your tool (table below). Type each command as its own prompt.
+   Then quit and reopen the tool, because skills are only discovered at startup.
+2. Make an empty folder for your project and set it up:
+
+   ```bash
+   mkdir my-app && cd my-app && git init
+   git clone https://github.com/roshanis/blackadder-dlc /tmp/blackadder-dlc
+   /tmp/blackadder-dlc/scripts/install.sh claude . --app-template --workflows gh-aw   # your tool: claude | cursor | codex | copilot | muse | openclaw
+   git add -A && git commit -m "Install Blackadder DLC kit"
+   ```
+
+3. Open the folder in your tool and type `/blackadder`. It answers "fresh project, run
+   `/ideate`".
+4. Type `/ideate` and talk about what you want to build. It asks one question at a time.
+   When it asks for the dials, answer `autonomy: supervised` for a first project and keep
+   the other defaults (`design_review: annotate`, `budget_usd_per_slice: 8`).
+5. It writes `docs/blackadder/01-idea.md` and stops. Read it, then reply `go`.
+
+From here on, `/blackadder` always tells you the next command. Every phase ends the same
+way: a document for you to read and one question with a default, so `go` is always a
+valid answer. Expect the document phases (idea, plan, architecture, design) to take an
+hour or two and a few dollars. Building starts only after you set up Vercel and Supabase
+following the checklist in `docs/bootstrap.md`, and each slice costs about what you set in
+`budget_usd_per_slice`.
+
+**If something goes wrong**, see [Troubleshooting](#troubleshooting). The most common
+first-run problem is `Unknown command: /blackadder`, which means the tool was not restarted
+after installing.
 
 ## Install
 
